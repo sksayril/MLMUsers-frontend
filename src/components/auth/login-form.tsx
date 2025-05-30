@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import axios from 'axios';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email' }),
@@ -38,28 +39,92 @@ export const LoginForm = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Attempting to login user:', data.email);
       
-      // Mock login - in a real app, this would be an API call
-      login({ 
-        email: data.email, 
-        id: 'user-1', 
-        name: data.email.split('@')[0] 
-      });
+      const response = await axios.post(
+        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/login',
+        {
+          email: data.email,
+          password: data.password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
       
-      toast({
-        title: 'Login successful',
-        description: 'Welcome back!',
-      });
+      console.log('Login response:', response.data);
       
-      navigate('/');
+      if (response.data.success) {
+        // Store the token from the API response
+        const token = response.data.token;
+        console.log('Storing token:', token);
+        localStorage.setItem('token', token);
+        
+        // Set the token in axios default headers for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Fetch user profile with the token
+        try {
+          const profileResponse = await axios.get(
+            'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/profile',
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+            }
+          );
+          
+          console.log('Profile response:', profileResponse.data);
+          
+          if (profileResponse.data.success) {
+            // Store the complete user data from profile
+            const userData = profileResponse.data.user;
+            console.log('Storing user data from profile:', userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            login({ 
+              email: userData.email, 
+              id: userData._id, 
+              name: userData.name 
+            });
+            
+            toast({
+              title: 'Login successful',
+              description: 'Welcome back!',
+            });
+            
+            navigate('/');
+          } else {
+            throw new Error(profileResponse.data.message || 'Failed to fetch profile');
+          }
+        } catch (profileError) {
+          console.error('Profile fetch error:', profileError);
+          throw new Error('Failed to fetch user profile');
+        }
+      } else {
+        throw new Error(response.data.message || 'Login failed');
+      }
     } catch (error) {
-      toast({
-        title: 'Login failed',
-        description: 'Please check your credentials and try again',
-        variant: 'destructive',
-      });
+      console.error('Login error:', error);
+      
+      if (axios.isAxiosError(error)) {
+        toast({
+          title: 'Login failed',
+          description: error.response?.data?.message || error.message || 'Please check your credentials and try again',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Login failed',
+          description: error instanceof Error ? error.message : 'Please check your credentials and try again',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }

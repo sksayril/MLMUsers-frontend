@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 type User = {
   id: string;
@@ -33,6 +34,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
+    // Clear the token from localStorage
+    localStorage.removeItem('token');
+    // Clear the user data from localStorage
+    localStorage.removeItem('user');
+    // Remove the token from axios headers
+    delete axios.defaults.headers.common['Authorization'];
+    // Clear the user state
     setUser(null);
   };
 

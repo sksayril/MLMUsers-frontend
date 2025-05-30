@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth-context';
@@ -8,28 +8,61 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { 
   Settings, LogOut, User, Bell, Shield, CreditCard, Gift, HelpCircle, 
   Wallet, ArrowUpCircle, ArrowDownCircle, Plus, Minus, Eye, EyeOff,
-  Calendar, Filter, Search
+  Calendar, Filter, Search, RefreshCw
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import axios from 'axios';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface DepositRequest {
+  id: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  requestDate: string;
+  approvedDate?: string;
+  notes: string;
+}
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('account');
   const [showBalance, setShowBalance] = useState(true);
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [depositAmount, setDepositAmount] = useState('');
+  const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [depositRequests, setDepositRequests] = useState<DepositRequest[]>([]);
+  const [isLoadingDeposits, setIsLoadingDeposits] = useState(false);
 
   // Mock data for wallets and transactions
   const walletData = {
     normal: {
       balance: 12450.75,
-      currency: 'USD'
+      currency: 'INR'
     },
     bonus: {
       balance: 340.25,
-      currency: 'USD'
+      currency: 'INR'
     }
   };
 
@@ -38,7 +71,7 @@ const ProfilePage = () => {
       id: 'tx001',
       type: 'deposit',
       amount: 500,
-      currency: 'USD',
+      currency: 'INR',
       date: '2025-05-28T10:30:00Z',
       status: 'completed',
       method: 'Credit Card',
@@ -48,7 +81,7 @@ const ProfilePage = () => {
       id: 'tx002',
       type: 'withdrawal',
       amount: 250,
-      currency: 'USD',
+      currency: 'INR',
       date: '2025-05-27T15:45:00Z',
       status: 'completed',
       method: 'Bank Transfer',
@@ -58,7 +91,7 @@ const ProfilePage = () => {
       id: 'tx003',
       type: 'deposit',
       amount: 1000,
-      currency: 'USD',
+      currency: 'INR',
       date: '2025-05-26T09:15:00Z',
       status: 'completed',
       method: 'Bank Transfer',
@@ -68,7 +101,7 @@ const ProfilePage = () => {
       id: 'tx004',
       type: 'withdrawal',
       amount: 75,
-      currency: 'USD',
+      currency: 'INR',
       date: '2025-05-25T14:20:00Z',
       status: 'pending',
       method: 'PayPal',
@@ -78,7 +111,7 @@ const ProfilePage = () => {
       id: 'tx005',
       type: 'deposit',
       amount: 200,
-      currency: 'USD',
+      currency: 'INR',
       date: '2025-05-24T11:00:00Z',
       status: 'completed',
       method: 'Crypto',
@@ -105,7 +138,7 @@ const ProfilePage = () => {
     navigate('/auth');
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -115,14 +148,15 @@ const ProfilePage = () => {
     });
   };
 
-  const formatAmount = (amount, currency = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
+  const formatAmount = (amount: number, currency = 'INR') => {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: currency
+      currency: currency,
+      maximumFractionDigits: 2
     }).format(amount);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
@@ -135,6 +169,123 @@ const ProfilePage = () => {
     if (paymentFilter === 'all') return true;
     return tx.type === paymentFilter;
   });
+
+  const handleDeposit = async () => {
+    if (!depositAmount || isNaN(Number(depositAmount)) || Number(depositAmount) <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid deposit amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+
+      const response = await axios.post(
+        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/deposit-request',
+        {
+          amount: Number(depositAmount),
+          notes: "Deposit via UPI"
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        toast({
+          title: "Success",
+          description: response.data.message,
+        });
+        setIsDepositDialogOpen(false);
+        setDepositAmount('');
+        if (paymentFilter === 'deposit') {
+          fetchDepositRequests();
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create deposit request",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating deposit request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create deposit request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const fetchDepositRequests = async () => {
+    setIsLoadingDeposits(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+
+      const response = await axios.get(
+        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/deposit-requests',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setDepositRequests(response.data.depositRequests);
+        toast({
+          title: "Success",
+          description: "Deposit requests refreshed successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to fetch deposit requests",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data
+        });
+      }
+      toast({
+        title: "Error",
+        description: "Failed to fetch deposit requests. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDeposits(false);
+    }
+  };
+
+  useEffect(() => {
+    if (paymentFilter === 'deposit') {
+      fetchDepositRequests();
+    }
+  }, [paymentFilter]);
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
@@ -248,60 +399,95 @@ const ProfilePage = () => {
           <TabsContent value="wallet">
             <div className="space-y-6">
               {/* Wallet Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Normal Wallet</CardTitle>
-                    <Wallet className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold">
-                        {showBalance ? formatAmount(walletData.normal.balance) : '••••••'}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Wallet Overview</CardTitle>
+                  <CardDescription>
+                    Manage your funds and view your balance
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-medium">Main Balance</h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowBalance(!showBalance)}
+                        >
+                          {showBalance ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowBalance(!showBalance)}
-                      >
-                        {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">Available Balance</p>
-                    <div className="flex gap-2 mt-4">
-                      <Button size="sm" className="flex-1">
-                        <Plus className="h-4 w-4 mr-1" />
-                        Deposit
-                      </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <Minus className="h-4 w-4 mr-1" />
-                        Withdraw
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Bonus Wallet</CardTitle>
-                    <Gift className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
                       <div className="text-2xl font-bold">
-                        {showBalance ? formatAmount(walletData.bonus.balance) : '••••••'}
+                        {showBalance ? formatAmount(walletData.normal.balance) : '****'}
                       </div>
-                      <Badge variant="secondary">Bonus</Badge>
+                      <div className="flex gap-2">
+                        <Dialog open={isDepositDialogOpen} onOpenChange={setIsDepositDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button className="flex items-center gap-2">
+                              <Plus className="h-4 w-4" />
+                              Deposit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Make a Deposit</DialogTitle>
+                              <DialogDescription>
+                                Enter the amount you want to deposit
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid gap-2">
+                                <Label htmlFor="amount">Amount (₹)</Label>
+                                <Input
+                                  id="amount"
+                                  type="number"
+                                  placeholder="Enter amount"
+                                  value={depositAmount}
+                                  onChange={(e) => setDepositAmount(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                onClick={handleDeposit}
+                                disabled={isSubmitting}
+                                className="w-full"
+                              >
+                                {isSubmitting ? 'Processing...' : 'Confirm Deposit'}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Button variant="outline" className="flex items-center gap-2">
+                          <Minus className="h-4 w-4" />
+                          Withdraw
+                        </Button>
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Bonus & Rewards</p>
-                    <div className="mt-4">
-                      <Button size="sm" variant="outline" className="w-full" disabled>
-                        Cannot Withdraw
-                      </Button>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-medium">Bonus Balance</h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowBalance(!showBalance)}
+                        >
+                          {showBalance ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      <div className="text-2xl font-bold">
+                        {showBalance ? formatAmount(walletData.bonus.balance) : '****'}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Bonus funds from referrals and promotions
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Quick Actions */}
               <Card>
@@ -311,10 +497,43 @@ const ProfilePage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Button className="h-20 flex-col gap-2">
-                      <ArrowDownCircle className="h-6 w-6" />
-                      <span>Deposit</span>
-                    </Button>
+                    <Dialog open={isDepositDialogOpen} onOpenChange={setIsDepositDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="h-20 flex-col gap-2">
+                          <ArrowDownCircle className="h-6 w-6" />
+                          <span>Deposit</span>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Make a Deposit</DialogTitle>
+                          <DialogDescription>
+                            Enter the amount you want to deposit
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="amount">Amount (₹)</Label>
+                            <Input
+                              id="amount"
+                              type="number"
+                              placeholder="Enter amount"
+                              value={depositAmount}
+                              onChange={(e) => setDepositAmount(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            onClick={handleDeposit}
+                            disabled={isSubmitting}
+                            className="w-full"
+                          >
+                            {isSubmitting ? 'Processing...' : 'Confirm Deposit'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                     <Button variant="outline" className="h-20 flex-col gap-2">
                       <ArrowUpCircle className="h-6 w-6" />
                       <span>Withdraw</span>
@@ -366,69 +585,145 @@ const ProfilePage = () => {
                       >
                         Withdrawals
                       </Button>
+                      {paymentFilter === 'deposit' && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={fetchDepositRequests}
+                                disabled={isLoadingDeposits}
+                                className="ml-2"
+                              >
+                                <RefreshCw className={`h-4 w-4 ${isLoadingDeposits ? 'animate-spin' : ''}`} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Get your latest payments</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </div>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {filteredTransactions.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-full ${
-                          transaction.type === 'deposit' 
-                            ? 'bg-green-100 text-green-600' 
-                            : 'bg-blue-100 text-blue-600'
-                        }`}>
-                          {transaction.type === 'deposit' ? (
-                            <ArrowDownCircle className="h-4 w-4" />
-                          ) : (
-                            <ArrowUpCircle className="h-4 w-4" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium capitalize">
-                            {transaction.type}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {transaction.description}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(transaction.date)}
-                          </p>
-                        </div>
+                {paymentFilter === 'deposit' ? (
+                  <div className="space-y-4">
+                    {isLoadingDeposits ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Loading deposit requests...
                       </div>
-                      <div className="text-right">
-                        <p className={`font-medium ${
-                          transaction.type === 'deposit' 
-                            ? 'text-green-600' 
-                            : 'text-blue-600'
-                        }`}>
-                          {transaction.type === 'deposit' ? '+' : '-'}
-                          {formatAmount(transaction.amount)}
-                        </p>
-                        <Badge 
-                          variant="secondary" 
-                          className={getStatusColor(transaction.status)}
+                    ) : depositRequests.length > 0 ? (
+                      depositRequests.map((request) => (
+                        <div
+                          key={request.id}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                         >
-                          {transaction.status}
-                        </Badge>
+                          <div className="flex items-center gap-4">
+                            <div className={`p-2 rounded-full ${
+                              request.status === 'approved' 
+                                ? 'bg-green-100 text-green-600' 
+                                : request.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-600'
+                                : 'bg-red-100 text-red-600'
+                            }`}>
+                              <ArrowDownCircle className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <p className="font-medium">
+                                Deposit Request
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {request.notes}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Requested: {formatDate(request.requestDate)}
+                                {request.approvedDate && ` • Approved: ${formatDate(request.approvedDate)}`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-green-600">
+                              +{formatAmount(request.amount)}
+                            </p>
+                            <Badge 
+                              variant="secondary" 
+                              className={getStatusColor(request.status)}
+                            >
+                              {request.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No deposit requests found
                       </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {filteredTransactions.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No {paymentFilter !== 'all' ? paymentFilter : ''} transactions found
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredTransactions.map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`p-2 rounded-full ${
+                            transaction.type === 'deposit' 
+                              ? 'bg-green-100 text-green-600' 
+                              : 'bg-blue-100 text-blue-600'
+                          }`}>
+                            {transaction.type === 'deposit' ? (
+                              <ArrowDownCircle className="h-4 w-4" />
+                            ) : (
+                              <ArrowUpCircle className="h-4 w-4" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium capitalize">
+                              {transaction.type}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {transaction.description}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDate(transaction.date)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-medium ${
+                            transaction.type === 'deposit' 
+                              ? 'text-green-600' 
+                              : 'text-blue-600'
+                          }`}>
+                            {transaction.type === 'deposit' ? '+' : '-'}
+                            {formatAmount(transaction.amount)}
+                          </p>
+                          <Badge 
+                            variant="secondary" 
+                            className={getStatusColor(transaction.status)}
+                          >
+                            {transaction.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {filteredTransactions.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No {paymentFilter !== 'all' ? paymentFilter : ''} transactions found
+                      </div>
+                    )}
                   </div>
                 )}
                 
                 <div className="flex justify-center mt-6">
-                  <Button variant="outline">Load More Transactions</Button>
+                  <Button variant="outline">Load More</Button>
                 </div>
               </CardContent>
             </Card>

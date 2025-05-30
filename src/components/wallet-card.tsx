@@ -13,8 +13,9 @@ interface WalletCardProps {
   trend?: string;
   trendDirection?: 'up' | 'down';
   progress?: number;
-  actionText: string;
+  actionText?: string;
   color?: 'default' | 'gold' | 'purple';
+  onActionClick?: () => void;
 }
 
 const WalletCard = ({
@@ -27,7 +28,8 @@ const WalletCard = ({
   trendDirection,
   progress,
   actionText,
-  color = 'default'
+  color = 'default',
+  onActionClick
 }: WalletCardProps) => {
   const cardStyles = {
     default: 'bg-gradient-to-br from-card to-card/80 hover:shadow-md hover:shadow-primary/10',
@@ -36,7 +38,11 @@ const WalletCard = ({
   };
 
   return (
-    <Card className={cn("transition-all duration-300", cardStyles[color])}>
+    <Card className={cn(
+      "relative overflow-hidden",
+      color === 'gold' && "bg-gradient-to-br from-amber-500/10 to-yellow-500/10 border-amber-500/20",
+      color === 'purple' && "bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border-purple-500/20"
+    )}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -86,20 +92,20 @@ const WalletCard = ({
           )}
         </div>
       </CardContent>
-      <CardFooter>
+      {actionText && (
         <Button 
           variant="outline" 
           size="sm" 
           className={cn(
-            "w-full",
-            color === 'gold' ? 'border-amber-500/20 hover:border-amber-500/40 hover:text-amber-600' :
-            color === 'purple' ? 'border-purple-500/20 hover:border-purple-500/40 hover:text-purple-600' :
-            'hover:border-primary hover:text-primary'
+            "mt-4",
+            color === 'gold' && "border-amber-500/20 hover:border-amber-500/40 hover:text-amber-600",
+            color === 'purple' && "border-purple-500/20 hover:border-purple-500/40 hover:text-purple-600"
           )}
+          onClick={onActionClick}
         >
           {actionText}
         </Button>
-      </CardFooter>
+      )}
     </Card>
   );
 };

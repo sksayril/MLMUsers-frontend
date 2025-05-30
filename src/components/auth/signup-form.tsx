@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import axios from 'axios';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -35,6 +36,8 @@ export const SignupForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,39 +49,90 @@ export const SignupForm = () => {
     },
   });
 
+  const termsChecked = watch('terms');
+
+  console.log('Form validation errors:', errors);
+
   const onSubmit = async (data: FormData) => {
+    console.log('Form submitted with data:', data);
     setIsLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Attempting to register user:', data.email);
       
-      // Mock signup - in a real app, this would be an API call
-      login({ 
-        email: data.email, 
-        id: 'new-user', 
-        name: data.name 
-      });
+      const response = await axios.post(
+        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/register',
+        {
+          name: data.name,
+          email: data.email,
+          password: data.password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
       
-      toast({
-        title: 'Account created',
-        description: 'Welcome to FinancePro!',
-      });
+      console.log('Registration response:', response.data);
       
-      navigate('/');
+      if (response.data.success) {
+        // Store the token from the API response
+        const token = response.data.token;
+        console.log('Storing token:', token);
+        localStorage.setItem('token', token);
+        
+        // Store the user data
+        const userData = response.data.user;
+        console.log('Storing user data:', userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Set the token in axios default headers for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        login({ 
+          email: userData.email, 
+          id: userData.id, 
+          name: userData.name 
+        });
+        
+        toast({
+          title: 'Account created',
+          description: 'Welcome to FinancePro!',
+        });
+        
+        navigate('/');
+      } else {
+        throw new Error(response.data.message || 'Registration failed');
+      }
     } catch (error) {
-      toast({
-        title: 'Signup failed',
-        description: 'There was a problem creating your account',
-        variant: 'destructive',
-      });
+      console.error('Registration error:', error);
+      
+      if (axios.isAxiosError(error)) {
+        toast({
+          title: 'Signup failed',
+          description: error.response?.data?.message || error.message || 'There was a problem creating your account',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Signup failed',
+          description: error instanceof Error ? error.message : 'There was a problem creating your account',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit((data) => {
+      console.log('Form submitted, calling onSubmit');
+      console.log('Form validation errors at submission:', errors);
+      onSubmit(data);
+    })} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="name">Full Name</Label>
         <Input
@@ -139,7 +193,10 @@ export const SignupForm = () => {
       <div className="flex items-center space-x-2">
         <Checkbox
           id="terms"
-          {...register('terms')}
+          checked={termsChecked}
+          onCheckedChange={(checked) => {
+            setValue('terms', checked as boolean);
+          }}
         />
         <Label htmlFor="terms" className="text-sm">
           I accept the <Button variant="link" className="p-0 h-auto font-normal">terms and conditions</Button>
