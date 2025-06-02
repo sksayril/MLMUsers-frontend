@@ -61,7 +61,7 @@ export const SignupForm = () => {
       console.log('Attempting to register user:', data.email);
       
       const response = await axios.post(
-        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/register',
+        'http://localhost:3100/api/users/register',
         {
           name: data.name,
           email: data.email,

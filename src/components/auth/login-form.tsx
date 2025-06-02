@@ -42,7 +42,7 @@ export const LoginForm = () => {
       console.log('Attempting to login user:', data.email);
       
       const response = await axios.post(
-        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/login',
+        'http://localhost:3100/api/users/login',
         {
           email: data.email,
           password: data.password
@@ -66,46 +66,32 @@ export const LoginForm = () => {
         // Set the token in axios default headers for future requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
-        // Fetch user profile with the token
-        try {
-          const profileResponse = await axios.get(
-            'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/profile',
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              }
-            }
-          );
-          
-          console.log('Profile response:', profileResponse.data);
-          
-          if (profileResponse.data.success) {
-            // Store the complete user data from profile
-            const userData = profileResponse.data.user;
-            console.log('Storing user data from profile:', userData);
-            localStorage.setItem('user', JSON.stringify(userData));
-            
-            login({ 
-              email: userData.email, 
-              id: userData._id, 
-              name: userData.name 
-            });
-            
-            toast({
-              title: 'Login successful',
-              description: 'Welcome back!',
-            });
-            
-            navigate('/');
-          } else {
-            throw new Error(profileResponse.data.message || 'Failed to fetch profile');
-          }
-        } catch (profileError) {
-          console.error('Profile fetch error:', profileError);
-          throw new Error('Failed to fetch user profile');
-        }
+        // Use the user data directly from the login response
+        const userData = response.data.user;
+        console.log('User data from login response:', userData);
+        
+        // Prepare user data with wallet information
+        const userDataForAuth = { 
+          email: userData.email, 
+          id: userData.id, 
+          name: userData.name,
+          referralCode: userData.referralCode,
+          level: userData.level,
+          wallet: userData.wallet
+        };
+        
+        // Store the complete user data
+        localStorage.setItem('user', JSON.stringify(userDataForAuth));
+        
+        // Update auth context
+        login(userDataForAuth);
+        
+        toast({
+          title: 'Login successful',
+          description: 'Welcome back!',
+        });
+        
+        navigate('/');
       } else {
         throw new Error(response.data.message || 'Login failed');
       }

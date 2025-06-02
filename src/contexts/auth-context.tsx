@@ -5,6 +5,13 @@ type User = {
   id: string;
   name: string;
   email: string;
+  referralCode?: string;
+  level?: number;
+  wallet?: {
+    normal: number;
+    benefit: number;
+    game: number;
+  };
 };
 
 interface AuthContextType {

@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import WalletCard from '@/components/wallet-card';
 import ReferralLink from '@/components/referral-link';
-import { Sparkles, Wallet, TrendingUp, User } from 'lucide-react';
+import { Sparkles, Wallet, TrendingUp, User, GamepadIcon } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,6 +27,7 @@ interface UserData {
   wallet: {
     normal: number;
     benefit: number;
+    game: number;
   };
   isAdmin: boolean;
   referredBy: string | null;
@@ -38,6 +39,7 @@ interface UserData {
 interface WalletData {
   normal: number;
   benefit: number;
+  game: number;
 }
 
 const DashboardSkeleton = () => {
@@ -48,8 +50,8 @@ const DashboardSkeleton = () => {
         <Skeleton className="h-4 w-48" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        {[1, 2, 3].map((i) => (
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        {[1, 2, 3, 4].map((i) => (
           <div key={i} className="rounded-xl border p-6">
             <div className="flex items-center gap-2 mb-4">
               <Skeleton className="h-8 w-8 rounded-full" />
@@ -99,7 +101,7 @@ const Dashboard = () => {
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -108,7 +110,7 @@ const Dashboard = () => {
       }
       
       const response = await axios.get(
-        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/profile',
+        'http://localhost:3100/api/users/profile',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -129,44 +131,16 @@ const Dashboard = () => {
           statusText: error.response?.statusText,
           data: error.response?.data
         });
+        toast({
+          title: 'Error loading profile',
+          description: 'Could not fetch your profile data.',
+          variant: 'destructive',
+        });
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fetchWalletData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/auth');
-        return;
-      }
-      
-      const response = await axios.get(
-        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/wallet',
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        }
-      );
-      
-      if (response.data.success) {
-        setWalletData(response.data.wallet);
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error details:', {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data
-        });
-      }
-    }
-  };
+  }, [navigate, toast]);
 
   useEffect(() => {
     if (!user) {
@@ -174,7 +148,7 @@ const Dashboard = () => {
     } else {
       fetchProfileData(); // Fetch profile data which includes wallet and level
     }
-  }, [user, navigate]);
+  }, [user, navigate, fetchProfileData]);
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -229,10 +203,10 @@ const Dashboard = () => {
       </header>
 
       <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
+        variants={container} 
+        initial="hidden" 
+        animate="show" 
+        className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10"
       >
         <motion.div variants={item}>
           <WalletCard 
@@ -249,22 +223,39 @@ const Dashboard = () => {
           <WalletCard 
             title="Benefit Wallet"
             amount={formatAmount(walletData?.benefit || 0)}
-            description="Rewards available"
+            description="Commission earnings"
             icon={<Sparkles className="h-5 w-5" />}
             trend="+5.7%"
             trendDirection="up"
             color="gold"
           />
         </motion.div>
+        
+        <motion.div variants={item}>
+          <WalletCard 
+            title="Game Wallet"
+            amount={formatAmount(walletData?.game || 0)}
+            description="For games & challenges"
+            icon={<GamepadIcon className="h-5 w-5" />}
+            trend="+1.2%"
+            trendDirection="up"
+            color="purple"
+          />
+        </motion.div>
 
         <motion.div variants={item}>
           <WalletCard 
-            title="User Profile"
-            level={`Level ${userData.level}`}
-            description={`Referral Code: ${userData.referralCode}`}
-            icon={<User className="h-5 w-5" />}
-            progress={86}
-            color="purple"
+            title="Total Balance"
+            amount={formatAmount(
+              (walletData?.normal || 0) + 
+              (walletData?.benefit || 0) + 
+              (walletData?.game || 0)
+            )}
+            description="Combined wallet balance"
+            icon={<TrendingUp className="h-5 w-5" />}
+            trend="+3.1%"
+            trendDirection="up"
+            color="gold"
           />
         </motion.div>
       </motion.div>
@@ -314,6 +305,12 @@ const Dashboard = () => {
                     <h3 className="font-semibold">Wallet Information</h3>
                     <p>Normal Balance: {formatAmount(walletData?.normal || 0)}</p>
                     <p>Benefit Balance: {formatAmount(walletData?.benefit || 0)}</p>
+                    <p>Game Balance: {formatAmount(walletData?.game || 0)}</p>
+                    <p>Total Balance: {formatAmount(
+                      (walletData?.normal || 0) + 
+                      (walletData?.benefit || 0) + 
+                      (walletData?.game || 0)
+                    )}</p>
                   </div>
                   <div>
                     <h3 className="font-semibold">Account Information</h3>

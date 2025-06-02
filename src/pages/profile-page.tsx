@@ -189,7 +189,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.post(
-        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/deposit-request',
+        'http://localhost:3100/api/users/deposit-request',
         {
           amount: Number(depositAmount),
           notes: "Deposit via UPI"
@@ -241,7 +241,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.get(
-        'https://7cvccltb-3100.inc1.devtunnels.ms/api/users/deposit-requests',
+        'http://localhost:3100/api/users/deposit-requests',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
