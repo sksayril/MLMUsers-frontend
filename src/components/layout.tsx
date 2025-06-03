@@ -44,7 +44,7 @@ const Layout = ({ children }: LayoutProps) => {
               transition={{ duration: 0.3 }}
               className="flex items-center gap-2 font-bold text-xl"
             >
-              <div className="hidden md:block ml-20">FinancePro</div>
+              <div className="hidden md:block ml-20">UtP-FUND</div>
             </motion.div>
             
             <div className="hidden md:flex items-center space-x-1">

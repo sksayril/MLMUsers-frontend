@@ -6,9 +6,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Settings, LogOut, User, Bell, Shield, CreditCard, Gift, HelpCircle, 
+  Settings, LogOut, User, Bell, Shield, CreditCard, HelpCircle, 
   Wallet, ArrowUpCircle, ArrowDownCircle, Plus, Minus, Eye, EyeOff,
-  Calendar, Filter, Search, RefreshCw
+ RefreshCw
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';

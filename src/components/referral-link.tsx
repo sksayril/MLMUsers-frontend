@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Copy, Share2, Gift, Users } from 'lucide-react';
 
@@ -13,7 +13,7 @@ interface ReferralLinkProps {
 const ReferralLink = ({ referralCode }: ReferralLinkProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-  const referralLink = `https://financepro.com/ref/${referralCode}`;
+  const referralLink = `https://utpfund.live/ref/${referralCode}`;
 
   const handleCopyToClipboard = () => {
     if (referralCode === 'N/A') {
@@ -49,7 +49,7 @@ const ReferralLink = ({ referralCode }: ReferralLinkProps) => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Join FinancePro',
+          title: 'Join UTP FUND',
           text: 'Check out this awesome financial app!',
           url: referralLink,
         });
@@ -98,7 +98,7 @@ const ReferralLink = ({ referralCode }: ReferralLinkProps) => {
                   className="ml-auto hover:bg-blue-500/10"
                   disabled={referralCode === 'N/A'}
                 >
-                  <Copy className="h-4 w-4" />
+                  <Copy className={`h-4 w-4 ${copied ? 'text-green-500' : ''}`} />
                 </Button>
               </div>
             </div>

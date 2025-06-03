@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+// import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -31,11 +31,11 @@ const WalletCard = ({
   color = 'default',
   onActionClick
 }: WalletCardProps) => {
-  const cardStyles = {
-    default: 'bg-gradient-to-br from-card to-card/80 hover:shadow-md hover:shadow-primary/10',
-    gold: 'bg-gradient-to-br from-amber-500/10 to-amber-600/5 hover:shadow-md hover:shadow-amber-500/20 border-amber-500/20',
-    purple: 'bg-gradient-to-br from-purple-500/10 to-purple-600/5 hover:shadow-md hover:shadow-purple-500/20 border-purple-500/20'
-  };
+  // const cardStyles = {
+  //   default: 'bg-gradient-to-br from-card to-card/80 hover:shadow-md hover:shadow-primary/10',
+  //   gold: 'bg-gradient-to-br from-amber-500/10 to-amber-600/5 hover:shadow-md hover:shadow-amber-500/20 border-amber-500/20',
+  //   purple: 'bg-gradient-to-br from-purple-500/10 to-purple-600/5 hover:shadow-md hover:shadow-purple-500/20 border-purple-500/20'
+  // };
 
   return (
     <Card className={cn(

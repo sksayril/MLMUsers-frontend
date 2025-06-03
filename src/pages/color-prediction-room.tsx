@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, Check, Clock, Loader2, Trophy, Users, Coins, Target, Zap, Crown, TrendingDown } from 'lucide-react';
+import { AlertCircle,  Clock, Loader2, Trophy, Users, Coins, Target, Zap, Crown, TrendingDown } from 'lucide-react';
 import axios from 'axios';
 
 // Define TypeScript interfaces
@@ -258,10 +258,10 @@ const ColorPredictionRoom: React.FC = () => {
   };
   
   // Format date to readable format
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
+  // const formatDate = (dateString: string) => {
+  //   const date = new Date(dateString);
+  //   return date.toLocaleString();
+  // };
 
   // Check if current user won
   const currentUserWon = () => {

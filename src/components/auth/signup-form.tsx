@@ -105,7 +105,7 @@ export const SignupForm = () => {
         
         toast({
           title: 'Account created',
-          description: 'Welcome to FinancePro!',
+          description: 'Welcome to Utp Fund!',
         });
         
         navigate('/');
