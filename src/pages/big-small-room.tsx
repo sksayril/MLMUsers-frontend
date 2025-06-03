@@ -135,7 +135,7 @@ const BigSmallRoom = () => {
       }
 
       const response = await axios.get<GameRoomResponse>(
-        `http://localhost:3100/api/number-game/room/${roomId}`, 
+        `https://api.utpfund.live/api/number-game/room/${roomId}`, 
         {
           headers: { Authorization: `Bearer ${token}` }
         }

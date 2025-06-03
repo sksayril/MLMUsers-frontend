@@ -69,7 +69,7 @@ const ProfilePage = () => {
           navigate('/auth');
           return;
         }
-        const response = await axios.get('http://localhost:3100/api/users/wallet', {
+        const response = await axios.get('https://api.utpfund.live/api/users/wallet', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -154,7 +154,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.post(
-        'http://localhost:3100/api/users/deposit-request',
+        'https://api.utpfund.live/api/users/deposit-request',
         {
           amount: Number(depositAmount),
           notes: "Deposit via UPI"
@@ -206,7 +206,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.get(
-        'http://localhost:3100/api/users/deposit-requests',
+        'https://api.utpfund.live/api/users/deposit-requests',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -278,7 +278,7 @@ const ProfilePage = () => {
         return;
       }
       const response = await axios.post(
-        'http://localhost:3100/api/users/withdrawal',
+        'https://api.utpfund.live/api/users/withdrawal',
         {
           amount: Number(withdrawAmount),
           upiId: withdrawUpiId,
@@ -326,7 +326,7 @@ const ProfilePage = () => {
         navigate('/auth');
         return;
       }
-      const response = await axios.get('http://localhost:3100/api/users/withdrawals', {
+      const response = await axios.get('https://api.utpfund.live/api/users/withdrawals', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
