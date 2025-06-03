@@ -93,7 +93,7 @@ const DashboardSkeleton = () => {
 };
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -130,16 +130,33 @@ const Dashboard = () => {
           statusText: error.response?.statusText,
           data: error.response?.data
         });
+        if (error.response?.status === 401) {
+          toast({
+            title: 'Session Expired',
+            description: 'Please log in again.',
+            variant: 'destructive',
+          });
+          logout();
+          navigate('/auth');
+          return;
+        }
         toast({
           title: 'Error loading profile',
-          description: 'Could not fetch your profile data.',
+          description: error.response?.data?.message || error.message || 'Could not fetch your profile data.',
+          variant: 'destructive',
+        });
+      } else {
+        console.error('Unexpected error fetching profile:', error);
+        toast({
+          title: 'Error loading profile',
+          description: 'An unexpected error occurred while fetching profile data.',
           variant: 'destructive',
         });
       }
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, toast]);
+  }, [navigate, toast, logout]);
 
   useEffect(() => {
     if (!user) {

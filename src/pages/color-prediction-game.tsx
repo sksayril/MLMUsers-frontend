@@ -270,7 +270,7 @@ const ColorPredictionGame = () => {
             <div className="mr-2">
               
               <span className="text-sm text-muted-foreground">Game Wallet:</span>
-              <span className="ml-2 font-bold text-lg">${walletData.game.toFixed(2)}</span>
+              <span className="ml-2 font-bold text-lg">₹{walletData.game.toFixed(2)}</span>
             </div>
             <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

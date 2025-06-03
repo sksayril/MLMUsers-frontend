@@ -676,13 +676,13 @@ const ProfilePage = () => {
                   </div>
                   <div className="flex gap-2">
                     <div className="flex gap-1">
-                      <Button
+                      {/* <Button
                         size="sm"
                         variant={paymentFilter === 'all' ? 'default' : 'outline'}
                         onClick={() => setPaymentFilter('all')}
                       >
                         All
-                      </Button>
+                      </Button> */}
                       <Button
                         size="sm"
                         variant={paymentFilter === 'deposit' ? 'default' : 'outline'}
