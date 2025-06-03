@@ -16,6 +16,7 @@ const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
   confirmPassword: z.string(),
+  referralCode: z.string().optional(),
   terms: z.boolean().refine(val => val === true, { 
     message: 'You must accept the terms and conditions' 
   }),
@@ -45,6 +46,7 @@ export const SignupForm = () => {
       email: '',
       password: '',
       confirmPassword: '',
+      referralCode: '',
       terms: false,
     },
   });
@@ -60,13 +62,17 @@ export const SignupForm = () => {
     try {
       console.log('Attempting to register user:', data.email);
       
+      const payload: any = {
+        name: data.name,
+        email: data.email,
+        password: data.password
+      };
+      if (data.referralCode && data.referralCode.trim() !== '') {
+        payload.referralCode = data.referralCode.trim();
+      }
       const response = await axios.post(
         'http://localhost:3100/api/users/register',
-        {
-          name: data.name,
-          email: data.email,
-          password: data.password
-        },
+        payload,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -187,6 +193,19 @@ export const SignupForm = () => {
         />
         {errors.confirmPassword && (
           <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="referral-code">Referral Code (optional)</Label>
+        <Input
+          id="referral-code"
+          placeholder="Enter referral code (if any)"
+          disabled={isLoading}
+          {...register('referralCode')}
+        />
+        {errors.referralCode && (
+          <p className="text-sm text-destructive">{errors.referralCode.message}</p>
         )}
       </div>
       

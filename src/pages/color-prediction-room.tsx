@@ -207,18 +207,20 @@ const ColorPredictionRoom: React.FC = () => {
     // Initial fetch
     fetchData();
     
-    // Only set up polling if the user has joined the game
-    if (hasJoined) {
-      const intervalId = setInterval(async () => {
-        const shouldContinue = await fetchData();
-        if (!shouldContinue) {
-          clearInterval(intervalId);
-        }
-      }, 13000); // Poll every 13 seconds
-      
-      return () => clearInterval(intervalId);
-    }
-  }, [fetchRoomDetails, hasJoined]);
+    // Set up polling with 20-second interval
+    const intervalId = setInterval(async () => {
+      console.log('Polling game room data...');
+      const shouldContinue = await fetchData();
+      if (!shouldContinue) {
+        clearInterval(intervalId);
+      }
+    }, 20000); // Poll every 20 seconds
+    
+    return () => {
+      console.log('Clearing game room polling interval');
+      clearInterval(intervalId);
+    };
+  }, [fetchRoomDetails]);
   
   // Get color variant for styling
   const getColorVariant = (color: string) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -74,7 +74,7 @@ const ColorPredictionGame = () => {
     }
   }, [toast, navigate]);
 
-  // Fetch game rooms with polling every 5 seconds
+  // Fetch game rooms (called by the polling mechanism)
   const fetchGameRooms = useCallback(async (isInitialFetch = false) => {
     try {
       // First load shows full loading state, polling shows subtle indicator
@@ -147,20 +147,57 @@ const ColorPredictionGame = () => {
     }
   }, [gameRooms, setIsLoading, setIsPolling, setInitialLoad, setGameRooms, toast, navigate]);
   
-  useEffect(() => {
-    // Initial fetch with full loading state
-    fetchGameRooms(true);
-    // Fetch wallet data only once on component mount
-    fetchWalletData();
+  // Use a ref to track if a fetch is in progress to prevent overlapping calls
+  const isFetchingRef = useRef(false);
+  const lastFetchTimeRef = useRef(0);
+
+  // Combined fetch function to get both wallet and rooms data
+  const fetchAllData = useCallback(async (isInitialFetch = false) => {
+    // Prevent overlapping fetch calls
+    if (isFetchingRef.current) {
+      console.log('Fetch already in progress, skipping...');
+      return;
+    }
+
+    // Check if 20 seconds have passed since the last fetch
+    const currentTime = Date.now();
+    if (!isInitialFetch && currentTime - lastFetchTimeRef.current < 20000) {
+      console.log('Not enough time passed since last fetch, skipping...');
+      return;
+    }
     
-    // Set up polling every 1 minute ONLY for game rooms
+    try {
+      console.log('Fetching wallet and game room data...');
+      isFetchingRef.current = true;
+      lastFetchTimeRef.current = currentTime;
+      
+      // Fetch both data in parallel
+      await Promise.all([
+        fetchGameRooms(isInitialFetch),
+        fetchWalletData()
+      ]);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      isFetchingRef.current = false;
+    }
+  }, [fetchGameRooms, fetchWalletData]);
+
+  useEffect(() => {
+    // Initial fetch when component mounts
+    fetchAllData(true);
+    
+    // Set up polling every 20 seconds
     const pollingInterval = setInterval(() => {
-      fetchGameRooms(false);
-    }, 60000);
+      fetchAllData(false);
+    }, 20000);
     
     // Clean up interval on component unmount
-    return () => clearInterval(pollingInterval);
-  }, [fetchGameRooms, fetchWalletData]);
+    return () => {
+      console.log('Clearing game polling interval');
+      clearInterval(pollingInterval);
+    };
+  }, [fetchAllData]);
 
   // Join a game room
   const handleJoinRoom = async (roomId: string) => {

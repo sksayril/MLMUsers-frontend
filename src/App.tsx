@@ -11,6 +11,8 @@ import GamePage from '@/pages/game-page';
 import ProfilePage from '@/pages/profile-page';
 import ColorPredictionGame from '@/pages/color-prediction-game';
 import ColorPredictionRoom from '@/pages/color-prediction-room';
+import BigSmallGame from '@/pages/big-small';
+import BigSmallRoom from '@/pages/big-small-room';
 import { useEffect } from 'react';
 import './App.css';
 
@@ -47,6 +49,8 @@ function AppContent() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/games/color-prediction" element={<ColorPredictionGame />} />
         <Route path="/games/color-prediction/:roomId" element={<ColorPredictionRoom />} />
+        <Route path="/games/big-small" element={<BigSmallGame />} />
+        <Route path="/games/big-small/room/:roomId" element={<BigSmallRoom />} />
       </Routes>
     </Layout>
   );

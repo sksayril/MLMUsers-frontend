@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import WalletCard from '@/components/wallet-card';
-import ReferralLink from '@/components/referral-link';
 import { Sparkles, Wallet, TrendingUp, User, GamepadIcon } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
@@ -200,6 +199,25 @@ const Dashboard = () => {
         >
           Here's an overview of your account
         </motion.p>
+        {/* Attractive Level & Ancestors cards */}
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
+          {/* Level Card */}
+          <div className="flex items-center gap-3 px-6 py-3 rounded-2xl shadow-lg bg-gradient-to-r from-purple-500 to-blue-500 animate-fade-in">
+            <span className="text-3xl font-bold text-white drop-shadow-lg flex items-center">
+              <svg className="w-7 h-7 mr-2 text-yellow-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 21 12 17.27 7.82 21 9 12.91l-5-3.64 5.91-.91L12 2z"/></svg>
+              {userData.level}
+            </span>
+            <span className="ml-2 text-lg font-semibold text-white/90">Level</span>
+          </div>
+          {/* Ancestors Card */}
+          <div className="flex items-center gap-3 px-6 py-3 rounded-2xl shadow-lg bg-gradient-to-r from-green-400 to-blue-400 animate-fade-in">
+            <span className="text-3xl font-bold text-white drop-shadow-lg flex items-center">
+              <svg className="w-7 h-7 mr-2 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a4 4 0 0 0-3-3.87M9 20H4v-2a4 4 0 0 1 3-3.87M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm6 8v-2a4 4 0 0 0-3-3.87M6 20v-2a4 4 0 0 1 3-3.87" /></svg>
+              {userData.ancestors?.length || 0}
+            </span>
+            <span className="ml-2 text-lg font-semibold text-white/90">Ancestors</span>
+          </div>
+        </div>
       </header>
 
       <motion.div 
@@ -325,14 +343,25 @@ const Dashboard = () => {
         </Dialog>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="mb-6"
-      >
-        <ReferralLink referralCode={userData.referralCode || 'N/A'} />
-      </motion.div>
+      {/* Referral Code Section (no link, just code and copy button) */}
+      <div className="flex flex-col items-center justify-center mt-8">
+        <span className="text-lg font-semibold mb-2">Your Referral Code</span>
+        <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-3 rounded-xl shadow-lg">
+          <span className="font-mono text-2xl font-bold text-white tracking-widest select-all">
+            {userData.referralCode}
+          </span>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => {
+              navigator.clipboard.writeText(userData.referralCode);
+              toast({ title: 'Copied!', description: 'Referral code copied to clipboard.' });
+            }}
+          >
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M8 16h8a2 2 0 0 0 2-2V8m-2-4H8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2zm0 0v4a2 2 0 0 0 2 2h4" /></svg>
+          </Button>
+        </div>
+      </div>
 
       <motion.div 
         initial={{ opacity: 0 }}

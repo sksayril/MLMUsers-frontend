@@ -49,75 +49,45 @@ const ProfilePage = () => {
   const [showBalance, setShowBalance] = useState(true);
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [depositAmount, setDepositAmount] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawUpiId, setWithdrawUpiId] = useState('');
   const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
+  const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [depositRequests, setDepositRequests] = useState<DepositRequest[]>([]);
   const [isLoadingDeposits, setIsLoadingDeposits] = useState(false);
+  const [wallet, setWallet] = useState<{ normal: number; game: number }>({ normal: 0, game: 0 });
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
 
-  // Mock data for wallets and transactions
-  const walletData = {
-    normal: {
-      balance: 12450.75,
-      currency: 'INR'
-    },
-    bonus: {
-      balance: 340.25,
-      currency: 'INR'
-    }
-  };
-
-  const transactions = [
-    {
-      id: 'tx001',
-      type: 'deposit',
-      amount: 500,
-      currency: 'INR',
-      date: '2025-05-28T10:30:00Z',
-      status: 'completed',
-      method: 'Credit Card',
-      description: 'Deposit via Visa ending in 4567'
-    },
-    {
-      id: 'tx002',
-      type: 'withdrawal',
-      amount: 250,
-      currency: 'INR',
-      date: '2025-05-27T15:45:00Z',
-      status: 'completed',
-      method: 'Bank Transfer',
-      description: 'Withdrawal to Bank Account ending in 8901'
-    },
-    {
-      id: 'tx003',
-      type: 'deposit',
-      amount: 1000,
-      currency: 'INR',
-      date: '2025-05-26T09:15:00Z',
-      status: 'completed',
-      method: 'Bank Transfer',
-      description: 'Bank transfer deposit'
-    },
-    {
-      id: 'tx004',
-      type: 'withdrawal',
-      amount: 75,
-      currency: 'INR',
-      date: '2025-05-25T14:20:00Z',
-      status: 'pending',
-      method: 'PayPal',
-      description: 'Withdrawal to PayPal account'
-    },
-    {
-      id: 'tx005',
-      type: 'deposit',
-      amount: 200,
-      currency: 'INR',
-      date: '2025-05-24T11:00:00Z',
-      status: 'completed',
-      method: 'Crypto',
-      description: 'Bitcoin deposit'
-    }
-  ];
+  // Fetch wallet data from API
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/auth');
+          return;
+        }
+        const response = await axios.get('http://localhost:3100/api/users/wallet', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.success) {
+          setWallet({
+            normal: response.data.wallet.normal,
+            game: response.data.wallet.game
+          });
+        }
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch wallet data',
+          variant: 'destructive',
+        });
+      }
+    };
+    fetchWallet();
+  }, [navigate, toast]);
 
   if (!user) {
     navigate('/auth');
@@ -164,11 +134,6 @@ const ProfilePage = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
-
-  const filteredTransactions = transactions.filter(tx => {
-    if (paymentFilter === 'all') return true;
-    return tx.type === paymentFilter;
-  });
 
   const handleDeposit = async () => {
     if (!depositAmount || isNaN(Number(depositAmount)) || Number(depositAmount) <= 0) {
@@ -286,6 +251,110 @@ const ProfilePage = () => {
       fetchDepositRequests();
     }
   }, [paymentFilter]);
+
+  // Update the withdraw handler for game wallet
+  const handleWithdraw = async () => {
+    if (!withdrawAmount || isNaN(Number(withdrawAmount)) || Number(withdrawAmount) <= 0) {
+      toast({
+        title: 'Invalid amount',
+        description: 'Please enter a valid withdraw amount',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!withdrawUpiId || withdrawUpiId.length < 5) {
+      toast({
+        title: 'Invalid UPI ID',
+        description: 'Please enter a valid UPI ID',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+      const response = await axios.post(
+        'http://localhost:3100/api/users/withdrawal',
+        {
+          amount: Number(withdrawAmount),
+          upiId: withdrawUpiId,
+          walletType: 'game'
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      if (response.data.success) {
+        toast({
+          title: 'Success',
+          description: response.data.message,
+        });
+        setIsWithdrawDialogOpen(false);
+        setWithdrawAmount('');
+        setWithdrawUpiId('');
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to create withdraw request',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create withdraw request. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Fetch withdrawals from API
+  const fetchWithdrawals = async () => {
+    setIsLoadingWithdrawals(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+      const response = await axios.get('http://localhost:3100/api/users/withdrawals', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setWithdrawals(response.data.withdrawals);
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch withdrawal requests',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch withdrawal requests. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingWithdrawals(false);
+    }
+  };
+
+  // Fetch withdrawals when Payment History tab is active
+  useEffect(() => {
+    if (activeTab === 'payments') {
+      fetchWithdrawals();
+    }
+  }, [activeTab]);
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
@@ -408,9 +477,10 @@ const ProfilePage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Main Wallet */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium">Main Balance</h3>
+                        <h3 className="text-sm font-medium">Main Wallet</h3>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -420,7 +490,7 @@ const ProfilePage = () => {
                         </Button>
                       </div>
                       <div className="text-2xl font-bold">
-                        {showBalance ? formatAmount(walletData.normal.balance) : '****'}
+                        {showBalance ? formatAmount(wallet.normal) : '****'}
                       </div>
                       <div className="flex gap-2">
                         <Dialog open={isDepositDialogOpen} onOpenChange={setIsDepositDialogOpen}>
@@ -434,7 +504,7 @@ const ProfilePage = () => {
                             <DialogHeader>
                               <DialogTitle>Make a Deposit</DialogTitle>
                               <DialogDescription>
-                                Enter the amount you want to deposit
+                                Enter the amount you want to deposit to your Main Wallet
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
@@ -460,16 +530,12 @@ const ProfilePage = () => {
                             </DialogFooter>
                           </DialogContent>
                         </Dialog>
-                        <Button variant="outline" className="flex items-center gap-2">
-                          <Minus className="h-4 w-4" />
-                          Withdraw
-                        </Button>
                       </div>
                     </div>
-                    
+                    {/* Game Wallet */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium">Bonus Balance</h3>
+                        <h3 className="text-sm font-medium">Game Wallet</h3>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -479,11 +545,57 @@ const ProfilePage = () => {
                         </Button>
                       </div>
                       <div className="text-2xl font-bold">
-                        {showBalance ? formatAmount(walletData.bonus.balance) : '****'}
+                        {showBalance ? formatAmount(wallet.game) : '****'}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Bonus funds from referrals and promotions
-                      </p>
+                      <div className="flex gap-2">
+                        <Dialog open={isWithdrawDialogOpen} onOpenChange={setIsWithdrawDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button className="flex items-center gap-2">
+                              <Minus className="h-4 w-4" />
+                              Withdraw
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Withdraw from Game Wallet</DialogTitle>
+                              <DialogDescription>
+                                Enter the amount and your UPI ID to withdraw from your Game Wallet
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid gap-2">
+                                <Label htmlFor="withdraw-amount">Amount (₹)</Label>
+                                <Input
+                                  id="withdraw-amount"
+                                  type="number"
+                                  placeholder="Enter amount"
+                                  value={withdrawAmount}
+                                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                                />
+                              </div>
+                              <div className="grid gap-2">
+                                <Label htmlFor="withdraw-upi">UPI ID</Label>
+                                <Input
+                                  id="withdraw-upi"
+                                  type="text"
+                                  placeholder="Enter your UPI ID"
+                                  value={withdrawUpiId}
+                                  onChange={(e) => setWithdrawUpiId(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                onClick={handleWithdraw}
+                                disabled={isSubmitting}
+                                className="w-full"
+                              >
+                                {isSubmitting ? 'Processing...' : 'Confirm Withdraw'}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -666,61 +778,91 @@ const ProfilePage = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {filteredTransactions.map((transaction) => (
+                    {withdrawals.map((w) => (
                       <div
-                        key={transaction.id}
+                        key={w.id}
                         className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div className={`p-2 rounded-full ${
-                            transaction.type === 'deposit' 
-                              ? 'bg-green-100 text-green-600' 
-                              : 'bg-blue-100 text-blue-600'
+                            w.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            w.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            'bg-red-100 text-red-800'
                           }`}>
-                            {transaction.type === 'deposit' ? (
-                              <ArrowDownCircle className="h-4 w-4" />
-                            ) : (
-                              <ArrowUpCircle className="h-4 w-4" />
-                            )}
+                            <ArrowUpCircle className="h-4 w-4" />
                           </div>
                           <div>
-                            <p className="font-medium capitalize">
-                              {transaction.type}
+                            <p className="font-medium">
+                              Withdrawal
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {transaction.description}
+                              {w.amount}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {formatDate(transaction.date)}
+                              {formatDate(w.createdAt)}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className={`font-medium ${
-                            transaction.type === 'deposit' 
-                              ? 'text-green-600' 
-                              : 'text-blue-600'
+                            w.status === 'pending' ? 'text-yellow-600' :
+                            w.status === 'approved' ? 'text-green-600' :
+                            'text-red-600'
                           }`}>
-                            {transaction.type === 'deposit' ? '+' : '-'}
-                            {formatAmount(transaction.amount)}
+                            {w.status}
                           </p>
-                          <Badge 
-                            variant="secondary" 
-                            className={getStatusColor(transaction.status)}
-                          >
-                            {transaction.status}
-                          </Badge>
                         </div>
                       </div>
                     ))}
-                    
-                    {filteredTransactions.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        No {paymentFilter !== 'all' ? paymentFilter : ''} transactions found
-                      </div>
-                    )}
                   </div>
                 )}
+                
+                <div className="mt-8">
+                  <div className="flex items-center mb-2">
+                    <h3 className="text-lg font-bold mr-2">Withdrawal Requests</h3>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={fetchWithdrawals}
+                      disabled={isLoadingWithdrawals}
+                      className="ml-1"
+                    >
+                      <RefreshCw className={`h-5 w-5 ${isLoadingWithdrawals ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
+                  {isLoadingWithdrawals ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      Loading withdrawal requests...
+                    </div>
+                  ) : withdrawals.length > 0 ? (
+                    <div className="space-y-4">
+                      {withdrawals.map((w) => (
+                        <div key={w.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg bg-muted/50">
+                          <div className="flex-1">
+                            <div className="font-medium text-base mb-1">₹{w.amount}</div>
+                            <div className="text-sm text-muted-foreground mb-1">UPI: {w.upiId}</div>
+                            <div className="text-xs text-muted-foreground">Requested: {formatDate(w.createdAt)}</div>
+                            {w.processedAt && <div className="text-xs text-muted-foreground">Processed: {formatDate(w.processedAt)}</div>}
+                            {w.remarks && <div className="text-xs text-yellow-700">Remarks: {w.remarks}</div>}
+                          </div>
+                          <div className="flex flex-col items-end mt-2 md:mt-0">
+                            <Badge className={
+                              w.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              w.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }>
+                              {w.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No withdrawal requests found
+                    </div>
+                  )}
+                </div>
                 
                 <div className="flex justify-center mt-6">
                   <Button variant="outline">Load More</Button>
