@@ -27,6 +27,8 @@ interface UserData {
     normal: number;
     benefit: number;
     game: number;
+    withdrawal: number; // Assuming withdrawal is part of the wallet
+    withdrawalDaysGrown: number;
   };
   isAdmin: boolean;
   referredBy: string | null;
@@ -39,6 +41,7 @@ interface WalletData {
   normal: number;
   benefit: number;
   game: number;
+  withdrawal: number;
 }
 
 const DashboardSkeleton = () => {
@@ -280,12 +283,9 @@ const Dashboard = () => {
 
         <motion.div variants={item}>
           <WalletCard 
-            title="Total Balance"
-            amount={formatAmount(
-              (walletData?.normal || 0) + 
-              (walletData?.benefit || 0) + 
-              (walletData?.game || 0)
-            )}
+            title="withdrawal"
+            amount={formatAmount(walletData?.withdrawal || 0)}
+
             description="Combined wallet balance"
             icon={<TrendingUp className="h-5 w-5" />}
             trend="+3.1%"
