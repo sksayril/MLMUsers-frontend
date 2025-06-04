@@ -207,14 +207,14 @@ const ColorPredictionRoom: React.FC = () => {
     // Initial fetch
     fetchData();
     
-    // Set up polling with 20-second interval
+    // Set up polling with 5-second interval
     const intervalId = setInterval(async () => {
       console.log('Polling game room data...');
       const shouldContinue = await fetchData();
       if (!shouldContinue) {
         clearInterval(intervalId);
       }
-    }, 20000); // Poll every 20 seconds
+    }, 5000); // Changed from 10000 to 5000
     
     return () => {
       console.log('Clearing game room polling interval');
