@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import WalletCard from '@/components/wallet-card';
-import { Sparkles, Wallet, TrendingUp, User, GamepadIcon } from 'lucide-react';
+import { Sparkles, Wallet, TrendingUp, User, GamepadIcon, Network } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog';
+import Tree from 'react-d3-tree';
 
 interface UserData {
   _id: string;
@@ -27,7 +28,7 @@ interface UserData {
     normal: number;
     benefit: number;
     game: number;
-    withdrawal: number; // Assuming withdrawal is part of the wallet
+    withdrawal: number;
     withdrawalDaysGrown: number;
   };
   isAdmin: boolean;
@@ -42,6 +43,54 @@ interface WalletData {
   benefit: number;
   game: number;
   withdrawal: number;
+}
+
+interface MLMLevel {
+  level: number;
+  rate: number;
+  referralsCount: number;
+  potentialEarnings: string;
+}
+
+interface MLMStats {
+  directReferrals: number;
+  totalNetworkSize: number;
+  levels: MLMLevel[];
+}
+
+interface MLMResponse {
+  success: boolean;
+  user: {
+    name: string;
+    mobile: string;
+    referralCode: string;
+    level: number;
+  };
+  mlmStats: MLMStats;
+  directReferrals: any[];
+  recentBonuses: any[];
+}
+
+interface TreeNode {
+  name: string;
+  attributes?: {
+    level?: number;
+    referrals?: number;
+    earnings?: string;
+    rate?: number;
+  };
+  children?: TreeNode[];
+}
+
+interface NodeDatum {
+  name: string;
+  attributes?: {
+    level?: number;
+    referrals?: number;
+    earnings?: string;
+    rate?: number;
+  };
+  children?: NodeDatum[];
 }
 
 const DashboardSkeleton = () => {
@@ -95,12 +144,125 @@ const DashboardSkeleton = () => {
   );
 };
 
+const MLMTreeVisualization = ({ data, isBenefitTree }: { data: MLMStats | null; isBenefitTree?: boolean }) => {
+  const transformData = (stats: MLMStats): TreeNode => {
+    if (isBenefitTree) {
+      const root: TreeNode = {
+        name: 'You (Level 1)',
+        attributes: {
+          level: 1,
+          referrals: stats.levels[0]?.referralsCount || 0,
+          earnings: stats.levels[0]?.potentialEarnings || 'N/A'
+        },
+        children: []
+      };
+
+      // Add levels as children nodes
+      for (let i = 1; i < stats.levels.length; i++) {
+        root.children?.push({
+          name: `Level ${stats.levels[i].level}`,
+          attributes: {
+            level: stats.levels[i].level,
+            rate: stats.levels[i].rate,
+            referrals: stats.levels[i].referralsCount,
+            earnings: stats.levels[i].potentialEarnings
+          }
+        });
+      }
+
+      return root;
+
+    } else {
+      // Existing network structure logic
+      const root: TreeNode = {
+        name: 'You',
+        attributes: {
+          level: 1,
+          referrals: stats.directReferrals,
+          earnings: 'Active'
+        },
+        children: []
+      };
+
+      // Add direct referrals
+      if (stats.directReferrals > 0) {
+        root.children = Array(stats.directReferrals).fill(null).map((_, index) => ({
+          name: `Referral ${index + 1}`,
+          attributes: {
+            level: 1,
+            referrals: 0,
+            earnings: 'Active'
+          }
+        }));
+      }
+
+      return root;
+    }
+  };
+
+  return (
+    <div className="w-full h-[600px] bg-white/5 rounded-xl overflow-hidden">
+      {data && (
+        <Tree
+          data={transformData(data)}
+          orientation="vertical"
+          pathFunc="step"
+          separation={{ siblings: 2, nonSiblings: 2.5 }}
+          renderCustomNodeElement={({ nodeDatum, toggleNode }: { nodeDatum: NodeDatum; toggleNode: () => void }) => (
+            <g>
+              <circle
+                r={20}
+                fill={isBenefitTree ? (nodeDatum.name === 'You (Level 1)' ? '#10B981' : '#06B6D4') : (nodeDatum.name === 'You' ? '#8B5CF6' : '#4F46E5')}
+                onClick={toggleNode}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+              />
+              <text
+                dy=".31em"
+                x={30}
+                textAnchor="start"
+                style={{ fill: 'white', fontSize: '12px' }}
+              >
+                {nodeDatum.name}
+              </text>
+              {nodeDatum.attributes && (
+                <text
+                  dy="1.5em"
+                  x={30}
+                  textAnchor="start"
+                  style={{ fill: '#94A3B8', fontSize: '10px' }}
+                >
+                  {isBenefitTree ? (
+                    `Rate: ${nodeDatum.attributes.rate}% • Referrals: ${nodeDatum.attributes.referrals}`
+                  ) : (
+                    `Level ${nodeDatum.attributes.level} • ${nodeDatum.attributes.referrals} referrals`
+                  )}
+                </text>
+              )}
+              {isBenefitTree && nodeDatum.attributes?.earnings && (
+                 <text
+                   dy="2.8em"
+                   x={30}
+                   textAnchor="start"
+                   style={{ fill: '#34D399', fontSize: '10px' }}
+                 >
+                   Earnings: {nodeDatum.attributes.earnings}
+                 </text>
+               )}
+            </g>
+          )}
+        />
+      )}
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [walletData, setWalletData] = useState<WalletData | null>(null);
+  const [mlmStats, setMlmStats] = useState<MLMStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfileData = useCallback(async () => {
@@ -156,18 +318,52 @@ const Dashboard = () => {
           variant: 'destructive',
         });
       }
-    } finally {
-      setIsLoading(false);
     }
   }, [navigate, toast, logout]);
+
+  const fetchMLMStats = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+      
+      const response = await axios.get<MLMResponse>(
+        'https://api.utpfund.live/api/mlm/stats',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        setMlmStats(response.data.mlmStats);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('MLM Stats error:', error.response?.data);
+        toast({
+          title: 'Error loading MLM stats',
+          description: error.response?.data?.message || 'Could not fetch MLM statistics.',
+          variant: 'destructive',
+        });
+      }
+    }
+  }, [navigate, toast]);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
     } else {
-      fetchProfileData(); // Fetch profile data which includes wallet and level
+      Promise.all([fetchProfileData(), fetchMLMStats()]).finally(() => {
+        setIsLoading(false);
+      });
     }
-  }, [user, navigate, fetchProfileData]);
+  }, [user, navigate, fetchProfileData, fetchMLMStats]);
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -293,6 +489,127 @@ const Dashboard = () => {
             color="gold"
           />
         </motion.div>
+      </motion.div>
+
+      {/* MLM Stats Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="mb-8"
+      >
+        <div className="bg-gradient-to-r from-purple-500/20 via-blue-400/10 to-indigo-500/20 border border-purple-400/30 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="h-7 w-7 text-purple-500" />
+              <h2 className="text-2xl font-bold">MLM Network Statistics</h2>
+            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Network className="h-4 w-4" />
+                  View Network Structure
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle>Your MLM Network Structure</DialogTitle>
+                  <DialogDescription>
+                    Visual representation of your network hierarchy and connections
+                  </DialogDescription>
+                </DialogHeader>
+                <MLMTreeVisualization data={mlmStats} />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Network Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-purple-400/20">
+              <h3 className="text-lg font-semibold mb-2">Direct Referrals</h3>
+              <p className="text-3xl font-bold text-purple-500">
+                {mlmStats?.directReferrals || 0}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">Active direct referrals</p>
+            </div> */}
+            {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-purple-400/20">
+              <h3 className="text-lg font-semibold mb-2">Total Network Size</h3>
+              <p className="text-3xl font-bold text-blue-500">
+                {mlmStats?.totalNetworkSize || 0}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">Total members in your network</p>
+            </div> */}
+          </div>
+
+          {/* Level-wise Statistics */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">Level-wise Performance</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {mlmStats?.levels.map((level) => (
+                <div
+                  key={level.level}
+                  className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-purple-400/20 hover:border-purple-400/40 transition-all"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-lg font-semibold">Level {level.level}</span>
+                    <span className="text-sm font-medium text-purple-400">
+                      {level.rate}% Rate
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Referrals</span>
+                      <span className="font-medium">{level.referralsCount}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Earnings</span>
+                      <span className="text-sm font-medium text-green-400">
+                        {level.potentialEarnings}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Benefit Structure Section (New) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="mb-8"
+      >
+        <div className="bg-gradient-to-r from-green-500/20 via-teal-400/10 to-cyan-500/20 border border-green-400/30 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Sparkles className="h-7 w-7 text-green-500" />
+              <h2 className="text-2xl font-bold">Benefit Structure</h2>
+            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Network className="h-4 w-4" />
+                  View Benefit Structure
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle>Your Benefit Structure</DialogTitle>
+                  <DialogDescription>
+                    Visual representation of how benefits are structured across levels.
+                  </DialogDescription>
+                </DialogHeader>
+                <MLMTreeVisualization data={mlmStats} isBenefitTree={true} />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* You can add more benefit-related stats here if available */}
+
+        </div>
       </motion.div>
 
       <motion.div

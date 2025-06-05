@@ -80,7 +80,8 @@ export const LoginForm = () => {
           name: userData.name,
           referralCode: userData.referralCode,
           level: userData.level,
-          wallet: userData.wallet
+          wallet: userData.wallet,
+          email: userData.email
         };
         
         // Store the complete user data
