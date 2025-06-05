@@ -13,6 +13,10 @@ import axios from 'axios';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  mobile: z.string()
+    .min(10, { message: 'Mobile number must be at least 10 digits' })
+    .max(10, { message: 'Mobile number must be exactly 10 digits' })
+    .regex(/^\d+$/, { message: 'Mobile number must contain only digits' }),
   email: z.string().email({ message: 'Please enter a valid email' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
   confirmPassword: z.string(),
@@ -43,6 +47,7 @@ export const SignupForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      mobile: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -64,6 +69,7 @@ export const SignupForm = () => {
       
       const payload: any = {
         name: data.name,
+        mobile: data.mobile,
         email: data.email,
         password: data.password
       };
@@ -149,6 +155,21 @@ export const SignupForm = () => {
         />
         {errors.name && (
           <p className="text-sm text-destructive">{errors.name.message}</p>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="mobile">Mobile Number</Label>
+        <Input
+          id="mobile"
+          type="tel"
+          placeholder="9876543210"
+          maxLength={10}
+          disabled={isLoading}
+          {...register('mobile')}
+        />
+        {errors.mobile && (
+          <p className="text-sm text-destructive">{errors.mobile.message}</p>
         )}
       </div>
       

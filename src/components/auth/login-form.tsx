@@ -11,7 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email' }),
+  mobile: z.string()
+    .min(10, { message: 'Mobile number must be at least 10 digits' })
+    .max(15, { message: 'Mobile number must not exceed 15 digits' })
+    .regex(/^\+?[1-9]\d{1,14}$/, { message: 'Please enter a valid mobile number' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
@@ -30,7 +33,7 @@ export const LoginForm = () => {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      mobile: '',
       password: '',
     },
   });
@@ -39,12 +42,12 @@ export const LoginForm = () => {
     setIsLoading(true);
     
     try {
-      console.log('Attempting to login user:', data.email);
+      console.log('Attempting to login user:', data.mobile);
       
       const response = await axios.post(
         'https://api.utpfund.live/api/users/login',
         {
-          email: data.email,
+          mobile: data.mobile,
           password: data.password
         },
         {
@@ -72,7 +75,7 @@ export const LoginForm = () => {
         
         // Prepare user data with wallet information
         const userDataForAuth = { 
-          email: userData.email, 
+          mobile: userData.mobile, 
           id: userData.id, 
           name: userData.name,
           referralCode: userData.referralCode,
@@ -119,17 +122,17 @@ export const LoginForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="mobile">Mobile Number</Label>
         <Input
-          id="email"
-          type="email"
-          placeholder="name@example.com"
-          autoComplete="email"
+          id="mobile"
+          type="tel"
+          placeholder="+1234567890"
+          autoComplete="tel"
           disabled={isLoading}
-          {...register('email')}
+          {...register('mobile')}
         />
-        {errors.email && (
-          <p className="text-sm text-destructive">{errors.email.message}</p>
+        {errors.mobile && (
+          <p className="text-sm text-destructive">{errors.mobile.message}</p>
         )}
       </div>
       
