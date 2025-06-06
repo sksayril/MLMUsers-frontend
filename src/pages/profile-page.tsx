@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { 
   Settings, LogOut, User, Bell, Shield, CreditCard, HelpCircle, 
   Wallet, ArrowUpCircle, ArrowDownCircle, Plus, Minus, Eye, EyeOff,
- RefreshCw
+  RefreshCw, Banknote, QrCode
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,24 @@ interface DepositRequest {
   notes: string;
 }
 
+interface BankDetails {
+  accountNumber: string;
+  ifscCode: string;
+  accountName: string;
+}
+
+interface WithdrawalRequest {
+  id: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  withdrawalMethod: 'upi' | 'bank';
+  upiId?: string;
+  bankDetails?: BankDetails;
+  createdAt: string;
+  processedAt?: string;
+  remarks?: string;
+}
+
 const ProfilePage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -57,8 +75,14 @@ const ProfilePage = () => {
   const [depositRequests, setDepositRequests] = useState<DepositRequest[]>([]);
   const [isLoadingDeposits, setIsLoadingDeposits] = useState(false);
   const [wallet, setWallet] = useState<{ normal: number; withdrawal: number }>({ normal: 0, withdrawal: 0 });
-  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
+  const [withdrawalMethod, setWithdrawalMethod] = useState<'upi' | 'bank'>('upi');
+  const [bankDetails, setBankDetails] = useState<BankDetails>({
+    accountNumber: '',
+    ifscCode: '',
+    accountName: ''
+  });
 
   // Fetch wallet data from API
   const fetchWallet = async () => {
@@ -253,7 +277,7 @@ const ProfilePage = () => {
     }
   }, [paymentFilter]);
 
-  // Update the withdraw handler for withdrawal wallet
+  // Update the withdraw handler
   const handleWithdraw = async () => {
     if (!withdrawAmount || isNaN(Number(withdrawAmount)) || Number(withdrawAmount) <= 0) {
       toast({
@@ -263,14 +287,34 @@ const ProfilePage = () => {
       });
       return;
     }
-    if (!withdrawUpiId || withdrawUpiId.length < 5) {
-      toast({
-        title: 'Invalid UPI ID',
-        description: 'Please enter a valid UPI ID',
-        variant: 'destructive',
-      });
-      return;
+
+    let withdrawalData: any = {
+      amount: Number(withdrawAmount),
+      withdrawalMethod: withdrawalMethod
+    };
+
+    if (withdrawalMethod === 'upi') {
+      if (!withdrawUpiId || withdrawUpiId.length < 5) {
+        toast({
+          title: 'Invalid UPI ID',
+          description: 'Please enter a valid UPI ID',
+          variant: 'destructive',
+        });
+        return;
+      }
+      withdrawalData.upiId = withdrawUpiId;
+    } else {
+      if (!bankDetails.accountNumber || !bankDetails.ifscCode || !bankDetails.accountName) {
+        toast({
+          title: 'Invalid Bank Details',
+          description: 'Please fill in all bank details',
+          variant: 'destructive',
+        });
+        return;
+      }
+      withdrawalData.bankDetails = bankDetails;
     }
+
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
@@ -280,11 +324,7 @@ const ProfilePage = () => {
       }
       const response = await axios.post(
         'https://api.utpfund.live/api/users/withdrawal',
-        {
-          amount: Number(withdrawAmount),
-          upiId: withdrawUpiId,
-          walletType: 'withdrawal'
-        },
+        withdrawalData,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -300,9 +340,12 @@ const ProfilePage = () => {
         setIsWithdrawDialogOpen(false);
         setWithdrawAmount('');
         setWithdrawUpiId('');
-        // Refresh wallet data after successful withdrawal
+        setBankDetails({
+          accountNumber: '',
+          ifscCode: '',
+          accountName: ''
+        });
         fetchWallet();
-        // Refresh withdrawal history
         fetchWithdrawals();
       } else {
         toast({
@@ -360,6 +403,35 @@ const ProfilePage = () => {
       fetchWithdrawals();
     }
   }, [activeTab]);
+
+  // Update the withdrawals display
+  const renderWithdrawalDetails = (withdrawal: WithdrawalRequest) => {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          {withdrawal.withdrawalMethod === 'upi' ? (
+            <QrCode className="h-4 w-4 text-primary" />
+          ) : (
+            <Banknote className="h-4 w-4 text-primary" />
+          )}
+          <span className="font-medium">
+            {withdrawal.withdrawalMethod === 'upi' ? 'UPI Transfer' : 'Bank Transfer'}
+          </span>
+        </div>
+        {withdrawal.withdrawalMethod === 'upi' ? (
+          <div className="text-sm text-muted-foreground">
+            UPI ID: {withdrawal.upiId}
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground space-y-1">
+            <div>Account: {withdrawal.bankDetails?.accountNumber}</div>
+            <div>Name: {withdrawal.bankDetails?.accountName}</div>
+            <div>IFSC: {withdrawal.bankDetails?.ifscCode}</div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
@@ -564,7 +636,7 @@ const ProfilePage = () => {
                             <DialogHeader>
                               <DialogTitle>Withdraw from Withdrawal Wallet</DialogTitle>
                               <DialogDescription>
-                                Enter the amount and your UPI ID to withdraw from your Withdrawal Wallet
+                                Choose your withdrawal method and enter the required details
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
@@ -578,16 +650,76 @@ const ProfilePage = () => {
                                   onChange={(e) => setWithdrawAmount(e.target.value)}
                                 />
                               </div>
+
                               <div className="grid gap-2">
-                                <Label htmlFor="withdraw-upi">UPI ID</Label>
-                                <Input
-                                  id="withdraw-upi"
-                                  type="text"
-                                  placeholder="Enter your UPI ID"
-                                  value={withdrawUpiId}
-                                  onChange={(e) => setWithdrawUpiId(e.target.value)}
-                                />
+                                <Label>Withdrawal Method</Label>
+                                <div className="flex gap-4">
+                                  <Button
+                                    type="button"
+                                    variant={withdrawalMethod === 'upi' ? 'default' : 'outline'}
+                                    className="flex-1"
+                                    onClick={() => setWithdrawalMethod('upi')}
+                                  >
+                                    <QrCode className="h-4 w-4 mr-2" />
+                                    UPI
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant={withdrawalMethod === 'bank' ? 'default' : 'outline'}
+                                    className="flex-1"
+                                    onClick={() => setWithdrawalMethod('bank')}
+                                  >
+                                    <Banknote className="h-4 w-4 mr-2" />
+                                    Bank Transfer
+                                  </Button>
+                                </div>
                               </div>
+
+                              {withdrawalMethod === 'upi' ? (
+                                <div className="grid gap-2">
+                                  <Label htmlFor="withdraw-upi">UPI ID</Label>
+                                  <Input
+                                    id="withdraw-upi"
+                                    type="text"
+                                    placeholder="Enter your UPI ID"
+                                    value={withdrawUpiId}
+                                    onChange={(e) => setWithdrawUpiId(e.target.value)}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="grid gap-4">
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="account-name">Account Holder Name</Label>
+                                    <Input
+                                      id="account-name"
+                                      type="text"
+                                      placeholder="Enter account holder name"
+                                      value={bankDetails.accountName}
+                                      onChange={(e) => setBankDetails({ ...bankDetails, accountName: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="account-number">Account Number</Label>
+                                    <Input
+                                      id="account-number"
+                                      type="text"
+                                      placeholder="Enter account number"
+                                      value={bankDetails.accountNumber}
+                                      onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="ifsc-code">IFSC Code</Label>
+                                    <Input
+                                      id="ifsc-code"
+                                      type="text"
+                                      placeholder="Enter IFSC code"
+                                      value={bankDetails.ifscCode}
+                                      onChange={(e) => setBankDetails({ ...bankDetails, ifscCode: e.target.value })}
+                                    />
+                                  </div>
+                                </div>
+                              )}
                             </div>
                             <DialogFooter>
                               <Button
@@ -797,25 +929,23 @@ const ProfilePage = () => {
                             <ArrowUpCircle className="h-4 w-4" />
                           </div>
                           <div>
-                            <p className="font-medium">
-                              Withdrawal
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {w.amount}
-                            </p>
+                            {renderWithdrawalDetails(w)}
                             <p className="text-xs text-muted-foreground">
                               {formatDate(w.createdAt)}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-medium ${
-                            w.status === 'pending' ? 'text-yellow-600' :
-                            w.status === 'approved' ? 'text-green-600' :
-                            'text-red-600'
-                          }`}>
-                            {w.status}
+                          <p className="font-medium">
+                            {formatAmount(w.amount)}
                           </p>
+                          <Badge className={
+                            w.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            w.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            'bg-red-100 text-red-800'
+                          }>
+                            {w.status}
+                          </Badge>
                         </div>
                       </div>
                     ))}
