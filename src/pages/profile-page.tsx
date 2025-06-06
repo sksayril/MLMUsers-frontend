@@ -56,38 +56,39 @@ const ProfilePage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [depositRequests, setDepositRequests] = useState<DepositRequest[]>([]);
   const [isLoadingDeposits, setIsLoadingDeposits] = useState(false);
-  const [wallet, setWallet] = useState<{ normal: number; game: number }>({ normal: 0, game: 0 });
+  const [wallet, setWallet] = useState<{ normal: number; withdrawal: number }>({ normal: 0, withdrawal: 0 });
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
 
   // Fetch wallet data from API
-  useEffect(() => {
-    const fetchWallet = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/auth');
-          return;
-        }
-        const response = await axios.get('https://api.utpfund.live/api/users/wallet', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.data.success) {
-          setWallet({
-            normal: response.data.wallet.normal,
-            game: response.data.wallet.game
-          });
-        }
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'Failed to fetch wallet data',
-          variant: 'destructive',
+  const fetchWallet = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+      const response = await axios.get('https://api.utpfund.live/api/users/wallet', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setWallet({
+          normal: response.data.wallet.normal,
+          withdrawal: response.data.wallet.withdrawal
         });
       }
-    };
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch wallet data',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  useEffect(() => {
     fetchWallet();
-  }, [navigate, toast]);
+  }, []);
 
   if (!user) {
     navigate('/auth');
@@ -252,7 +253,7 @@ const ProfilePage = () => {
     }
   }, [paymentFilter]);
 
-  // Update the withdraw handler for game wallet
+  // Update the withdraw handler for withdrawal wallet
   const handleWithdraw = async () => {
     if (!withdrawAmount || isNaN(Number(withdrawAmount)) || Number(withdrawAmount) <= 0) {
       toast({
@@ -282,7 +283,7 @@ const ProfilePage = () => {
         {
           amount: Number(withdrawAmount),
           upiId: withdrawUpiId,
-          walletType: 'game'
+          walletType: 'withdrawal'
         },
         {
           headers: {
@@ -299,6 +300,10 @@ const ProfilePage = () => {
         setIsWithdrawDialogOpen(false);
         setWithdrawAmount('');
         setWithdrawUpiId('');
+        // Refresh wallet data after successful withdrawal
+        fetchWallet();
+        // Refresh withdrawal history
+        fetchWithdrawals();
       } else {
         toast({
           title: 'Error',
@@ -532,10 +537,10 @@ const ProfilePage = () => {
                         </Dialog>
                       </div>
                     </div>
-                    {/* Game Wallet */}
+                    {/* Withdrawal Wallet */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium">Game Wallet</h3>
+                        <h3 className="text-sm font-medium">Withdrawal Wallet</h3>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -545,7 +550,7 @@ const ProfilePage = () => {
                         </Button>
                       </div>
                       <div className="text-2xl font-bold">
-                        {showBalance ? formatAmount(wallet.game) : '****'}
+                        {showBalance ? formatAmount(wallet.withdrawal) : '****'}
                       </div>
                       <div className="flex gap-2">
                         <Dialog open={isWithdrawDialogOpen} onOpenChange={setIsWithdrawDialogOpen}>
@@ -557,9 +562,9 @@ const ProfilePage = () => {
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Withdraw from Game Wallet</DialogTitle>
+                              <DialogTitle>Withdraw from Withdrawal Wallet</DialogTitle>
                               <DialogDescription>
-                                Enter the amount and your UPI ID to withdraw from your Game Wallet
+                                Enter the amount and your UPI ID to withdraw from your Withdrawal Wallet
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
