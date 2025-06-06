@@ -1,12 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/login-form';
 import { SignupForm } from '@/components/auth/signup-form';
 import { DiamondIcon } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState<string>('login');
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref');
+
+  useEffect(() => {
+    // If there's a referral code in the URL, switch to signup tab
+    if (referralCode) {
+      setActiveTab('signup');
+    }
+  }, [referralCode]);
 
   return (
     <div className="flex min-h-[calc(100vh-64px)] items-center justify-center p-4 md:p-8">
@@ -36,7 +46,7 @@ const AuthPage = () => {
             </TabsContent>
             
             <TabsContent value="signup">
-              <SignupForm />
+              <SignupForm referralCode={referralCode} />
             </TabsContent>
           </Tabs>
         </div>

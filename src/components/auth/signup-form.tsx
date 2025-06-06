@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,7 +31,11 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export const SignupForm = () => {
+interface SignupFormProps {
+  referralCode?: string | null;
+}
+
+export const SignupForm = ({ referralCode }: SignupFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -51,10 +55,17 @@ export const SignupForm = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      referralCode: '',
+      referralCode: referralCode || '',
       terms: false,
     },
   });
+
+  // Set referral code when component mounts or when prop changes
+  useEffect(() => {
+    if (referralCode) {
+      setValue('referralCode', referralCode);
+    }
+  }, [referralCode, setValue]);
 
   const termsChecked = watch('terms');
 
