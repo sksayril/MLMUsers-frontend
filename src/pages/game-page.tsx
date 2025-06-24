@@ -204,7 +204,7 @@ const GamePage = () => {
       {/* Game Cards */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Games</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {/* Color Prediction Game */}
           <Card className="overflow-hidden border border-blue-500/20 bg-gradient-to-br from-[#1E254A] to-[#161A42] text-white">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -translate-y-16 translate-x-16"></div>
@@ -255,6 +255,77 @@ const GamePage = () => {
               <Button 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-none" 
                 onClick={() => navigate('/games/big-small')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
+                Play Now
+              </Button>
+            </CardContent>
+          </Card>
+          
+          {/* Spin & Win Game */}
+          <Card className="overflow-hidden border border-yellow-500/20 bg-gradient-to-br from-[#1E254A] to-[#161A42] text-white">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-500/10 rounded-full translate-y-12 -translate-x-12"></div>
+            
+            <CardHeader>
+              <CardTitle className="text-xl font-bold">Spin & Win</CardTitle>
+              <CardDescription className="text-slate-400">Spin the wheel of fortune</CardDescription>
+            </CardHeader>
+            
+            <CardContent className="relative">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full border-4 border-yellow-400 bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 3.64L18.18 21 12 17.27 5.82 21 7 12.91l-5-3.64 6.91-1.01L12 2z"/>
+                    </svg>
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs">₹</div>
+                </div>
+              </div>
+              
+              <Button 
+                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 border-none" 
+                onClick={() => navigate('/games/spin-wheel')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
+                Play Now
+              </Button>
+            </CardContent>
+          </Card>
+          
+          {/* Dice Roll Game */}
+          <Card className="overflow-hidden border border-cyan-500/20 bg-gradient-to-br from-[#1E254A] to-[#161A42] text-white">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-teal-500/10 rounded-full translate-y-12 -translate-x-12"></div>
+            
+            <CardHeader>
+              <CardTitle className="text-xl font-bold">Dice Roll Challenge</CardTitle>
+              <CardDescription className="text-slate-400">Roll dice and predict outcomes</CardDescription>
+            </CardHeader>
+            
+            <CardContent className="relative">
+              <div className="flex justify-center gap-2 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-700 rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="2"/>
+                  </svg>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="8" cy="8" r="2"/>
+                    <circle cx="16" cy="16" r="2"/>
+                  </svg>
+                </div>
+              </div>
+              
+              <Button 
+                className="bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 border-none" 
+                onClick={() => navigate('/games/dice-roll')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />

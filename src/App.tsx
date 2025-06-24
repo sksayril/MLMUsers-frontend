@@ -13,6 +13,8 @@ import ColorPredictionGame from '@/pages/color-prediction-game';
 import ColorPredictionRoom from '@/pages/color-prediction-room';
 import BigSmallGame from '@/pages/big-small';
 import BigSmallRoom from '@/pages/big-small-room';
+import SpinWheelGame from '@/pages/spin-wheel-game';
+import DiceRollGame from '@/pages/dice-roll-game';
 import { useEffect } from 'react';
 import './App.css';
 
@@ -51,6 +53,8 @@ function AppContent() {
         <Route path="/games/color-prediction/:roomId" element={<ColorPredictionRoom />} />
         <Route path="/games/big-small" element={<BigSmallGame />} />
         <Route path="/games/big-small/room/:roomId" element={<BigSmallRoom />} />
+        <Route path="/games/spin-wheel" element={<SpinWheelGame />} />
+        <Route path="/games/dice-roll" element={<DiceRollGame />} />
       </Routes>
     </Layout>
   );

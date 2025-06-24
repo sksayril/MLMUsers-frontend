@@ -222,7 +222,9 @@ const BigSmallGame = () => {
 
   // Join a game room
   const handleJoinRoom = async () => {
-    if (!selectedRoom || !predictionType || !betAmount) {
+    console.log('Confirm Bet clicked!', { selectedRoom, selectedNumber, predictionType, betAmount, walletData });
+    
+    if (!selectedRoom || !selectedNumber || !predictionType || !betAmount) {
       toast({
         variant: 'destructive',
         title: 'Incomplete selection',
@@ -231,8 +233,18 @@ const BigSmallGame = () => {
       return;
     }
 
+    const betAmountNum = parseFloat(betAmount);
+    if (isNaN(betAmountNum) || betAmountNum <= 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid bet amount',
+        description: 'Please enter a valid bet amount greater than 0.'
+      });
+      return;
+    }
+
     // Check if user has enough in wallet
-    if (walletData.game < parseFloat(betAmount)) {
+    if (walletData.game < betAmountNum) {
       toast({
         variant: 'destructive',
         title: 'Insufficient funds',
@@ -263,7 +275,7 @@ const BigSmallGame = () => {
       const response = await axios.post('https://api.utpfund.live/api/number-game/room/join', {
         roomId,
         numberType: predictionType,
-        entryAmount: parseFloat(betAmount)
+        entryAmount: betAmountNum
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -426,38 +438,75 @@ const BigSmallGame = () => {
           </DialogHeader>
 
           <div className="space-y-5 py-3">
-            {/* Number Balls */}
+            {/* Pool Balls */}
             <div className="space-y-3">
               <div className="text-sm font-medium text-slate-300">Select a Number:</div>
-              <div className="flex justify-center flex-wrap gap-2">
-                {[1, 2, 3, 4, 5].map((number) => (
-                  <button
-                    key={number}
-                    onClick={() => handleNumberSelect(number)}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-all ${
-                      selectedNumber === number
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-700 ring-2 ring-green-400 shadow-lg scale-110'
-                        : 'bg-gradient-to-r from-slate-700 to-slate-800 hover:scale-105'
-                    }`}
-                  >
-                    {number}
-                  </button>
-                ))}
+              <div className="flex justify-center flex-wrap gap-3">
+                {[1, 2, 3, 4, 5].map((number) => {
+                  const ballColors = {
+                    1: 'bg-gradient-to-br from-yellow-400 to-yellow-600',
+                    2: 'bg-gradient-to-br from-blue-500 to-blue-700', 
+                    3: 'bg-gradient-to-br from-red-500 to-red-700',
+                    4: 'bg-gradient-to-br from-purple-500 to-purple-700',
+                    5: 'bg-gradient-to-br from-orange-500 to-orange-700'
+                  };
+                  
+                  return (
+                    <button
+                      key={number}
+                      onClick={() => handleNumberSelect(number)}
+                      className={`relative w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold transition-all transform hover:scale-105 shadow-lg ${
+                        selectedNumber === number
+                          ? 'ring-4 ring-green-400 ring-opacity-75 scale-110 shadow-2xl'
+                          : 'hover:shadow-xl'
+                      }`}
+                    >
+                      {/* Pool ball gradient background */}
+                      <div className={`absolute inset-0 rounded-full ${ballColors[number as keyof typeof ballColors]}`}></div>
+                      
+                      {/* White circle for number */}
+                      <div className="relative w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-inner">
+                        <span className="text-black text-sm font-bold">{number}</span>
+                      </div>
+                      
+                      {/* Shine effect */}
+                      <div className="absolute top-1 left-2 w-3 h-3 bg-white opacity-40 rounded-full blur-sm"></div>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex justify-center flex-wrap gap-2">
-                {[6, 7, 8, 9].map((number) => (
-                  <button
-                    key={number}
-                    onClick={() => handleNumberSelect(number)}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-all ${
-                      selectedNumber === number
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-700 ring-2 ring-blue-400 shadow-lg scale-110'
-                        : 'bg-gradient-to-r from-slate-700 to-slate-800 hover:scale-105'
-                    }`}
-                  >
-                    {number}
-                  </button>
-                ))}
+              <div className="flex justify-center flex-wrap gap-3">
+                {[6, 7, 8, 9].map((number) => {
+                  const ballColors = {
+                    6: 'bg-gradient-to-br from-green-500 to-green-700',
+                    7: 'bg-gradient-to-br from-red-800 to-red-900',
+                    8: 'bg-gradient-to-br from-gray-800 to-black',
+                    9: 'bg-gradient-to-br from-yellow-600 to-yellow-800'
+                  };
+                  
+                  return (
+                    <button
+                      key={number}
+                      onClick={() => handleNumberSelect(number)}
+                      className={`relative w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold transition-all transform hover:scale-105 shadow-lg ${
+                        selectedNumber === number
+                          ? 'ring-4 ring-blue-400 ring-opacity-75 scale-110 shadow-2xl'
+                          : 'hover:shadow-xl'
+                      }`}
+                    >
+                      {/* Pool ball gradient background */}
+                      <div className={`absolute inset-0 rounded-full ${ballColors[number as keyof typeof ballColors]}`}></div>
+                      
+                      {/* White circle for number */}
+                      <div className="relative w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-inner">
+                        <span className="text-black text-sm font-bold">{number}</span>
+                      </div>
+                      
+                      {/* Shine effect */}
+                      <div className="absolute top-1 left-2 w-3 h-3 bg-white opacity-40 rounded-full blur-sm"></div>
+                    </button>
+                  );
+                })}
               </div>
 
               {selectedNumber !== null && (
@@ -486,6 +535,13 @@ const BigSmallGame = () => {
                 <div className="text-xs text-slate-400">
                   Your wallet balance: <span className="text-green-400">₹{walletData.game}</span>
                 </div>
+                
+                {/* Debug Info */}
+                {/* <div className="text-xs text-red-400 p-2 bg-slate-800 rounded">
+                  Debug: Number={selectedNumber} | Type={predictionType} | Amount={betAmount} | 
+                  Valid Amount: {parseFloat(betAmount || '0') > 0 ? 'Yes' : 'No'} | 
+                  Sufficient Funds: {parseFloat(betAmount || '0') <= walletData.game ? 'Yes' : 'No'}
+                </div> */}
               </div>
             </div>
           </div>
@@ -496,8 +552,8 @@ const BigSmallGame = () => {
             </Button>
             <Button 
               onClick={handleJoinRoom} 
-              disabled={!selectedNumber || !predictionType || !betAmount || parseFloat(betAmount) <= 0 || parseFloat(betAmount) > walletData.game}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-800 hover:from-blue-700 hover:to-purple-900 border-none"
+              disabled={!selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-800 hover:from-blue-700 hover:to-purple-900 border-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm Bet
             </Button>
