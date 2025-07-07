@@ -75,7 +75,7 @@ const ColorPredictionRoom: React.FC = () => {
         return;
       }
 
-      const response = await axios.get<GameRoomResponse>(`https://api.utpfund.live/api/game/room/${roomId}`, {
+      const response = await axios.get<GameRoomResponse>(`http://localhost:3100/api/game/room/${roomId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -141,7 +141,7 @@ const ColorPredictionRoom: React.FC = () => {
       }
       
       const response = await axios.post(
-        'https://api.utpfund.live/api/game/room/join', 
+        'http://localhost:3100/api/game/room/join', 
         {
           roomId: roomId,
           colorSelected: color

@@ -36,6 +36,7 @@ const Navbar = () => {
   const navItems = [
     { path: '/', label: 'Home', icon: <Home className="h-5 w-5" /> },
     { path: '/game', label: 'Game', icon: <GamepadIcon className="h-5 w-5" /> },
+    { path: '/matrix', label: 'Matrix', icon: <User className="h-5 w-5" /> },
     { path: '/profile', label: 'Profile', icon: <User className="h-5 w-5" /> },
   ];
 

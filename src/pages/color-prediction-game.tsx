@@ -49,7 +49,7 @@ const ColorPredictionGame = () => {
         return;
       }
 
-      const response = await axios.get('https://api.utpfund.live/api/users/wallet', {
+      const response = await axios.get('http://localhost:3100/api/users/wallet', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -96,7 +96,7 @@ const ColorPredictionGame = () => {
         return;
       }
 
-      const response = await axios.get('https://api.utpfund.live/api/game/rooms', {
+      const response = await axios.get('http://localhost:3100/api/game/rooms', {
         headers: {
           Authorization: `Bearer ${token}`
         }

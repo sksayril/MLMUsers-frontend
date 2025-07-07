@@ -15,6 +15,7 @@ import BigSmallGame from '@/pages/big-small';
 import BigSmallRoom from '@/pages/big-small-room';
 import SpinWheelGame from '@/pages/spin-wheel-game';
 import DiceRollGame from '@/pages/dice-roll-game';
+import MatrixPage from '@/pages/matrix';
 import { useEffect } from 'react';
 import './App.css';
 
@@ -49,6 +50,7 @@ function AppContent() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/game" element={<GamePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/matrix" element={<MatrixPage />} />
         <Route path="/games/color-prediction" element={<ColorPredictionGame />} />
         <Route path="/games/color-prediction/:roomId" element={<ColorPredictionRoom />} />
         <Route path="/games/big-small" element={<BigSmallGame />} />

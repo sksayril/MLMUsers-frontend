@@ -385,7 +385,7 @@ const Dashboard = () => {
       }
       
       const response = await axios.get(
-        'https://api.utpfund.live/api/users/profile',
+        'http://localhost:3100/api/users/profile',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -441,7 +441,7 @@ const Dashboard = () => {
       }
       
       const response = await axios.get<MLMResponse>(
-        'https://api.utpfund.live/api/mlm/stats',
+        'http://localhost:3100/api/mlm/stats',
         {
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -16,11 +16,11 @@ const formSchema = z.object({
   mobile: z.string()
     .min(10, { message: 'Mobile number must be at least 10 digits' })
     .max(10, { message: 'Mobile number must be exactly 10 digits' })
-    .regex(/^\d+$/, { message: 'Mobile number must contain only digits' }),
+    .regex(/^[0-9]+$/, { message: 'Mobile number must contain only digits' }),
   email: z.string().email({ message: 'Please enter a valid email' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
   confirmPassword: z.string(),
-  referralCode: z.string().optional(),
+  referralCode: z.string().min(1, { message: 'Referral code is required' }),
   terms: z.boolean().refine(val => val === true, { 
     message: 'You must accept the terms and conditions' 
   }),
@@ -88,7 +88,7 @@ export const SignupForm = ({ referralCode }: SignupFormProps) => {
         payload.referralCode = data.referralCode.trim();
       }
       const response = await axios.post(
-        'https://api.utpfund.live/api/users/register',
+        'http://localhost:3100/api/users/register',
         payload,
         {
           headers: {
@@ -229,10 +229,10 @@ export const SignupForm = ({ referralCode }: SignupFormProps) => {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="referral-code">Referral Code (optional)</Label>
+        <Label htmlFor="referral-code">Referral Code</Label>
         <Input
           id="referral-code"
-          placeholder="Enter referral code (if any)"
+          placeholder="Enter referral code"
           disabled={isLoading}
           {...register('referralCode')}
         />
