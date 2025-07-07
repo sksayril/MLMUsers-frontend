@@ -88,7 +88,7 @@ export const SignupForm = ({ referralCode }: SignupFormProps) => {
         payload.referralCode = data.referralCode.trim();
       }
       const response = await axios.post(
-        'http://localhost:3100/api/users/register',
+        'https://api.utpfund.live/api/users/register',
         payload,
         {
           headers: {

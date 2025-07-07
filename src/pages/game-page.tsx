@@ -39,7 +39,7 @@ const GamePage = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:3100/api/users/wallet', {
+      const response = await axios.get('https://api.utpfund.live/api/users/wallet', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -102,7 +102,7 @@ const GamePage = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:3100/api/users/wallet/transfer', {
+      const response = await axios.post('https://api.utpfund.live/api/users/wallet/transfer', {
         fromWallet: 'normal',
         toWallet: 'game',
         amount

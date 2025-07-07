@@ -56,7 +56,7 @@ const BigSmallGame = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:3100/api/users/wallet', {
+      const response = await axios.get('https://api.utpfund.live/api/users/wallet', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -103,7 +103,7 @@ const BigSmallGame = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:3100/api/number-game/rooms', {
+      const response = await axios.get('https://api.utpfund.live/api/number-game/rooms', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -272,7 +272,7 @@ const BigSmallGame = () => {
       });
       
       // Call the join API
-      const response = await axios.post('http://localhost:3100/api/number-game/room/join', {
+      const response = await axios.post('https://api.utpfund.live/api/number-game/room/join', {
         roomId,
         numberType: predictionType,
         entryAmount: betAmountNum

@@ -126,7 +126,7 @@ const MatrixPage = () => {
         return;
       }
       const response = await axios.get<MatrixResponse>(
-        'http://localhost:3100/api/mlm/stats',
+        'https://api.utpfund.live/api/mlm/stats',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
