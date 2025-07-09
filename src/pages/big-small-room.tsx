@@ -497,7 +497,12 @@ const BigSmallRoom = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="overflow-hidden border-0 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm shadow-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+          >
+            <Card className="relative bg-gradient-to-br from-blue-900/80 via-purple-900/70 to-blue-800/80 border-4 border-purple-500/40 shadow-2xl rounded-3xl overflow-hidden backdrop-blur-lg">
             
             {/* Room Status Header */}
             <CardHeader className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border-b border-purple-500/20">
@@ -931,6 +936,7 @@ const BigSmallRoom = () => {
               </motion.div>
             </CardFooter>
           </Card>
+          </motion.div>
         </motion.div>
 
         {/* Room Status Indicators */}
@@ -1059,16 +1065,19 @@ const ResultsDialog = ({ isOpen, onClose, winningBall, countdown, players }: Res
               exit={{ scale: 0.5, opacity: 0 }}
               className="text-center py-8"
             >
-              <motion.div
-                className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center mx-auto mb-4"
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 360],
-                }}
-                transition={{ duration: 1, repeat: Infinity }}
-              >
-                <span className="text-6xl font-bold text-white">{countdownNumber}</span>
-              </motion.div>
+              {showCountdown && (
+                <motion.div
+                  className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center mx-auto mb-4 shadow-2xl border-4 border-yellow-400 animate-pulse"
+                  animate={{ scale: [1, 1.2, 1], boxShadow: [
+                    '0 0 20px #a78bfa',
+                    '0 0 40px #a78bfa',
+                    '0 0 20px #a78bfa',
+                  ] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <span className="text-6xl font-bold text-white animate-pulse">{countdownNumber}</span>
+                </motion.div>
+              )}
               <motion.h2 
                 className="text-2xl font-bold text-white"
                 animate={{ opacity: [0.5, 1, 0.5] }}

@@ -622,9 +622,9 @@ const ColorPredictionRoom: React.FC = () => {
   };
   
   // Main render
-  return (
-    <div className="container mx-auto py-8 min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {isLoading ? (
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
         <div className="text-center py-12">
           <div className="flex flex-col items-center justify-center">
             <div className="relative">
@@ -639,7 +639,12 @@ const ColorPredictionRoom: React.FC = () => {
             </div>
           </div>
         </div>
-      ) : error ? (
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
         <div className="text-center py-12">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-pink-600/20 rounded-2xl blur-xl"></div>
@@ -657,65 +662,135 @@ const ColorPredictionRoom: React.FC = () => {
             </div>
           </div>
         </div>
-      ) : (
-        <Card className="overflow-hidden border-2 border-blue-500/30 bg-gradient-to-br from-[#1E254A] via-[#2A1F47] to-[#161A42] text-white relative shadow-2xl max-w-4xl mx-auto">
-          {/* Animated Background Elements */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full -translate-y-20 translate-x-20 animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full translate-y-16 -translate-x-16 animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-full animate-spin" style={{ animationDuration: '20s' }}></div>
-          
-          <CardHeader className="relative z-10">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                🎮 Room {gameRoom?.roomId}
-              </CardTitle>
-              
-              <Badge 
-                variant={gameRoom?.status === 'waiting' ? 'outline' : 'secondary'} 
-                className={`capitalize text-lg px-4 py-2 ${
-                  gameRoom?.status === 'waiting' 
-                    ? 'bg-green-500/20 text-green-400 border-green-500/50 animate-pulse' 
-                    : gameRoom?.status === 'completed'
-                    ? 'bg-blue-500/20 text-blue-400 border-blue-500/50'
-                    : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
-                }`}
-              >
-                {gameRoom?.status === 'waiting' && '🟢 '}
-                {gameRoom?.status === 'completed' && '🏁 '}
-                {gameRoom?.status}
-              </Badge>
+      </div>
+    );
+  }
+  // Use original logic for completed/waiting states
+  if (gameRoom && (gameRoom.status === 'completed' || hasJoined)) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
+        <div className="w-full max-w-2xl">
+          {renderGameStatus()}
+        </div>
+      </div>
+    );
+  }
+  // Main selection state UI (new design, logic wired up)
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
+      <div className="w-[420px] bg-gradient-to-b from-blue-800 to-blue-900 rounded-2xl shadow-2xl border-4 border-blue-700 p-0 overflow-hidden relative">
+        {/* Header: Number display and countdown */}
+        <div className="flex flex-col items-center pt-6 pb-2 bg-blue-700/80">
+          <div className="flex items-center gap-4 w-full justify-between px-6">
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-blue-200">Min</span>
+              <span className="text-lg font-bold text-white">{gameRoom?.entryFee || 100}</span>
             </div>
-            
-            {gameRoom && (
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-xl p-4 border border-blue-500/20">
-                  <div className="flex items-center gap-3">
-                    <Coins className="h-6 w-6 text-blue-400" />
-                    <div>
-                      <span className="text-blue-200 text-sm block">Entry Fee</span>
-                      <span className="text-xl font-bold text-blue-400">₹{gameRoom.entryFee}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/20">
-                  <div className="flex items-center gap-3">
-                    <Trophy className="h-6 w-6 text-purple-400" />
-                    <div>
-                      <span className="text-purple-200 text-sm block">Prize Pool</span>
-                      <span className="text-xl font-bold text-purple-400">₹{gameRoom.winningAmount}</span>
-                    </div>
-                  </div>
-                </div>
+            {/* Flip number display */}
+            <div className="flex flex-col items-center">
+              <div className="relative w-24 h-24 flex items-center justify-center bg-green-500 rounded-lg shadow-lg text-6xl font-extrabold text-white border-4 border-green-700">
+                {/* Show current number if available, else placeholder */}
+                <span className="">{gameRoom?.winningAmount ?? '9'}</span>
               </div>
-            )}
-          </CardHeader>
-          
-          <CardContent className="relative z-10">
-            {renderGameStatus()}
-          </CardContent>
-        </Card>
-      )}
+              <span className="text-xs text-blue-200 mt-1">Number</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-blue-200">Max</span>
+              <span className="text-lg font-bold text-white">2K</span>
+            </div>
+          </div>
+          {/* Countdown and player count */}
+          <div className="flex items-center justify-between w-full px-6 mt-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-blue-200">Countdown</span>
+              <span className="bg-blue-900 text-white font-bold rounded px-2 py-1 text-lg">{countdown !== null ? countdown : 0}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-blue-200" />
+              <span className="text-white font-bold">{gameRoom?.currentPlayers || 0}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Color selection */}
+        <div className="flex justify-between gap-2 px-6 mt-6">
+          {['green', 'blue', 'red'].map((color) => (
+            <button
+              key={color}
+              className={`flex-1 ${color === 'green' ? 'bg-green-500 hover:bg-green-600' : color === 'blue' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-500 hover:bg-red-600'} text-white font-bold rounded-full py-3 text-lg shadow-lg flex flex-col items-center transition-all mx-1 ${selectedColor === color ? 'ring-4 ring-yellow-300' : ''}`}
+              onClick={() => joinRoom(color)}
+              disabled={isJoining || hasJoined}
+            >
+              {color.charAt(0).toUpperCase() + color.slice(1)}
+              <span className="text-xs font-normal text-white/80">
+                {color === 'green' || color === 'red' ? 'x2.0 or x1.6' : 'x4.8'}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Number selection grid (static UI, unless you want to wire up logic) */}
+        <div className="grid grid-cols-5 gap-3 px-6 mt-6">
+          {[0,1,2,3,4,5,6,7,8,9].map((num) => {
+            let color = '';
+            let odds = '';
+            if ([1,3,7,9].includes(num)) { color = 'bg-green-500'; odds = 'x2.0'; }
+            else if ([2,4,6,8].includes(num)) { color = 'bg-red-500'; odds = 'x2.0'; }
+            else if ([0,5].includes(num)) { color = 'bg-violet-600'; odds = 'x4.8'; }
+            return (
+              <button
+                key={num}
+                className={`flex flex-col items-center justify-center rounded-lg h-14 text-xl font-bold text-white shadow-md border-2 border-white/10 hover:scale-105 transition-all ${color}`}
+                // onClick={...} // Add handler if number selection is needed
+                disabled
+              >
+                {num}
+                <span className="text-xs font-normal text-white/80">{odds}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bet controls (UI only, wire up if you have logic) */}
+        <div className="flex flex-col items-center mt-8 px-6 pb-4">
+          <div className="flex justify-between w-full mb-2">
+            <span className="text-blue-200 font-bold">Balance: <span className="text-yellow-300">2,000</span></span>
+            <span className="text-blue-200 font-bold">WIN: <span className="text-green-300">0</span></span>
+          </div>
+          <div className="flex items-center w-full gap-2 mt-2">
+            <button className="flex-1 bg-blue-700 hover:bg-blue-800 text-white rounded-lg py-2 font-bold">again</button>
+            <input className="w-20 text-center rounded-lg border border-blue-400 bg-blue-900 text-white font-bold py-2 mx-2" value={100} readOnly />
+            <button className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg py-2 font-bold">bet</button>
+            <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg py-2 font-bold">undo</button>
+            <button className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 font-bold">clear</button>
+          </div>
+        </div>
+
+        {/* Bet history table (UI only, wire up if you have logic) */}
+        <div className="bg-blue-950/80 px-4 py-2 mt-2 rounded-b-2xl">
+          <table className="w-full text-xs text-blue-100">
+            <thead>
+              <tr>
+                <th className="py-1">Price</th>
+                <th className="py-1">Result</th>
+                <th className="py-1">Time</th>
+                <th className="py-1">WIN</th>
+                <th className="py-1">Fairness</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Example row, replace with real data if available */}
+              <tr>
+                <td className="text-center py-1">100</td>
+                <td className="text-center py-1">Green</td>
+                <td className="text-center py-1">12:00</td>
+                <td className="text-center py-1">0</td>
+                <td className="text-center py-1">✔️</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
