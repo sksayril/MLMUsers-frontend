@@ -322,127 +322,356 @@ const BigSmallGame = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-          🎲 Big Small Number Game
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
-          Choose Big or Small to predict the outcome of the random number. Join a game room below!
-        </p>
-        
-        {/* Wallet Information */}
-        <div className="flex flex-wrap justify-center gap-4 mb-6">
-          <Card className="bg-gradient-to-r from-slate-800 to-slate-900 text-white w-full max-w-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Your Game Wallet</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-400" />
-                  <span className="text-gray-300">Balance:</span>
-                </div>
-                <span className="text-xl font-bold text-green-400">₹{walletData.game}</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-slate-800 relative overflow-hidden">
+      {/* Premium Casino Background Effects with Advanced Animations */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-blue-900/10 to-red-900/10 animate-pulse"></div>
+      
+      {/* Floating Casino Elements */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-red-500/5 to-transparent rounded-full blur-3xl animate-pulse opacity-60"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-blue-500/5 to-transparent rounded-full blur-3xl animate-pulse delay-1000 opacity-60"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-green-500/5 to-transparent rounded-full blur-3xl animate-pulse delay-500 opacity-60"></div>
+      
+      {/* Floating Casino Chips Animation */}
+      <div className="absolute top-20 left-10 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full animate-bounce opacity-20" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
+      <div className="absolute top-40 right-20 w-6 h-6 bg-gradient-to-br from-red-400 to-red-600 rounded-full animate-bounce opacity-20" style={{ animationDelay: '1s', animationDuration: '4s' }}></div>
+      <div className="absolute bottom-32 left-20 w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce opacity-20" style={{ animationDelay: '2s', animationDuration: '3.5s' }}></div>
+      <div className="absolute bottom-20 right-10 w-7 h-7 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full animate-bounce opacity-20" style={{ animationDelay: '0.5s', animationDuration: '3.8s' }}></div>
+      
+      {/* Floating Sparkles */}
+      <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-yellow-400 rounded-full animate-ping opacity-30" style={{ animationDelay: '0s', animationDuration: '2s' }}></div>
+      <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-white rounded-full animate-ping opacity-40" style={{ animationDelay: '1s', animationDuration: '2.5s' }}></div>
+      <div className="absolute top-1/2 left-10 w-1.5 h-1.5 bg-green-400 rounded-full animate-ping opacity-30" style={{ animationDelay: '2s', animationDuration: '2.2s' }}></div>
+      <div className="absolute bottom-1/4 right-20 w-2 h-2 bg-red-400 rounded-full animate-ping opacity-25" style={{ animationDelay: '0.8s', animationDuration: '2.8s' }}></div>
+      
+      {/* Rotating Casino Symbols */}
+      <div className="absolute top-16 right-16 text-yellow-400 opacity-10 animate-spin" style={{ animationDuration: '8s' }}>
+        <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+      </div>
+      <div className="absolute bottom-16 left-16 text-red-400 opacity-10 animate-spin" style={{ animationDuration: '12s' }}>
+        <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/>
+        </svg>
       </div>
       
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-10 w-10 rounded-full border-4 border-t-blue-500 border-b-blue-700 border-l-blue-600 border-r-blue-600 animate-spin"></div>
-            <p className="text-slate-500 dark:text-slate-400">Loading game rooms...</p>
+      <div className="container mx-auto py-8 px-4 relative z-10">
+        {/* Premium Casino Header */}
+        <div className="relative mb-12">
+          {/* Neon Header Background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 via-yellow-500/20 via-green-500/20 to-blue-600/20 rounded-3xl blur-xl animate-pulse"></div>
+          
+          <div className="relative bg-black/70 backdrop-blur-xl rounded-3xl p-8 border-2 border-gradient-to-r from-red-500/50 via-yellow-500/50 via-green-500/50 to-blue-500/50">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="text-center lg:text-left">
+                <h1 className="text-5xl lg:text-6xl font-black mb-4 tracking-wider">
+                  <span className="bg-gradient-to-r from-orange-400 via-yellow-400 to-red-400 bg-clip-text text-transparent animate-pulse">
+                    🎲 BIG SMALL PREDICTION 🎲
+                  </span>
+        </h1>
+                <p className="text-xl text-slate-300 font-semibold">
+                  🔥 Choose Big or Small, Win Massive Prizes! 🔥
+        </p>
+                <div className="flex justify-center lg:justify-start gap-3 mt-4">
+                  <div className="w-8 h-8 rounded-full animate-bounce shadow-lg bg-green-500 shadow-green-500/50 hover:animate-spin transition-all duration-300 cursor-pointer" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-8 h-8 rounded-full animate-bounce shadow-lg bg-red-500 shadow-red-500/50 hover:animate-spin transition-all duration-300 cursor-pointer" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-8 h-8 rounded-full animate-bounce shadow-lg bg-blue-500 shadow-blue-500/50 hover:animate-spin transition-all duration-300 cursor-pointer" style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-8 h-8 rounded-full animate-bounce shadow-lg bg-yellow-500 shadow-yellow-500/50 hover:animate-spin transition-all duration-300 cursor-pointer" style={{ animationDelay: '450ms' }}></div>
+                  
+                  {/* Additional animated casino elements */}
+                  <div className="w-6 h-6 rounded-full animate-pulse shadow-lg bg-purple-500 shadow-purple-500/50 ml-2" style={{ animationDelay: '600ms', animationDuration: '1.5s' }}></div>
+                  <div className="w-4 h-4 rounded-full animate-ping shadow-lg bg-orange-500 shadow-orange-500/50 mt-2" style={{ animationDelay: '800ms', animationDuration: '2s' }}></div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col items-center gap-4">
+                <Button 
+                  onClick={() => navigate('/game')} 
+                  className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 border-2 border-gray-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-all"
+                >
+                  ← Back to Games
+                </Button>
+                
+                {/* Premium Wallet Display with Animations */}
+                <div className="bg-gradient-to-r from-green-800 to-emerald-800 p-4 rounded-2xl border-4 border-green-400/50 shadow-2xl shadow-green-500/20 hover:shadow-3xl hover:shadow-green-500/30 transition-all duration-300 transform hover:scale-105">
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg animate-pulse hover:animate-spin transition-all duration-300">
+                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
+                      </svg>
+                      {/* Wallet sparkles */}
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping opacity-75"></div>
+                      <div className="absolute -bottom-1 -left-1 w-1 h-1 bg-white rounded-full animate-ping opacity-60" style={{ animationDelay: '0.5s' }}></div>
+                    </div>
+                    <div className="relative">
+                      <p className="text-green-200 font-semibold text-sm animate-pulse">💰 GAME WALLET</p>
+                      <p className="text-white font-black text-2xl hover:text-green-300 transition-colors duration-300">₹{walletData.game.toFixed(2)}</p>
+                      {/* Amount highlight effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-pulse opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
+                  </div>
+                </div>
+        </div>
+      </div>
           </div>
         </div>
+      
+        {/* Loading State with Casino Theme */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="relative">
+              <div className="w-24 h-24 border-8 border-yellow-500/20 rounded-full animate-spin"></div>
+              <div className="absolute inset-0 w-24 h-24 border-8 border-t-yellow-500 border-r-red-500 border-b-green-500 border-l-blue-500 rounded-full animate-spin"></div>
+            </div>
+            <p className="text-yellow-400 font-bold text-xl mt-6 animate-pulse">🎰 Loading Casino Tables... 🎰</p>
+        </div>
       ) : gameRooms.length > 0 ? (
-        <div className="space-y-6">
+          <div className="relative">
+            {/* Live Update Indicator */}
           {isPolling && (
-            <div className="flex justify-center items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
-              <div className="animate-spin rounded-full h-3 w-3 border-t-1 border-b-1 border-white"></div>
-              <span>Updating...</span>
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-3 px-6 py-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 shadow-xl border-2 border-purple-400/50 animate-pulse">
+                <div className="w-4 h-4 bg-white rounded-full animate-ping"></div>
+                <span className="text-white font-bold text-sm">🔄 LIVE UPDATES</span>
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gameRooms.map((room) => (
-              <Card key={room.id} className="overflow-hidden border border-blue-500/20 bg-gradient-to-br from-[#1E254A] to-[#161A42] text-white relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -translate-y-16 translate-x-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full translate-y-12 -translate-x-12"></div>
+            {/* Premium Game Tables Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {gameRooms.map((room, index) => (
+                <div 
+                  key={room.id} 
+                  className="group relative transform opacity-0 transition-all duration-700 hover:scale-105"
+                  style={{ 
+                    animation: `fadeInUp 0.6s ease-out ${index * 0.15}s forwards`,
+                    transform: 'translateY(20px)'
+                  }}
+                >
+                  {/* Table Glow Effect with Enhanced Animation */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 via-yellow-500/20 via-green-500/20 to-blue-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 animate-pulse group-hover:animate-ping"></div>
+                  
+                  {/* Casino Table Card */}
+                  <Card className="relative bg-gradient-to-br from-emerald-900/95 via-green-900/90 to-emerald-950/95 border-4 border-yellow-500/30 rounded-3xl overflow-hidden shadow-2xl hover:shadow-yellow-500/20 transition-all duration-500 transform hover:scale-105">
+                    {/* Table Felt Background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 to-green-800/40"></div>
+                    
+                    {/* Decorative Casino Elements */}
+                    <div className="absolute top-4 right-4 w-20 sm:w-24 lg:w-32 h-20 sm:h-24 lg:h-32 bg-gradient-to-br from-yellow-400/10 to-transparent rounded-full blur-xl animate-pulse"></div>
+                    <div className="absolute bottom-4 left-4 w-16 sm:w-18 lg:w-24 h-16 sm:h-18 lg:h-24 bg-gradient-to-tl from-red-400/10 to-transparent rounded-full blur-xl animate-pulse delay-500"></div>
                 
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl font-bold">Room {room.roomId}</CardTitle>
-                    <Badge variant={room.status === 'waiting' ? 'outline' : 'secondary'} className={`capitalize ${room.status === 'waiting' ? 'bg-green-500/20 text-green-400 border-green-500/50' : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'}`}>
-                      {room.status}
+                    <CardHeader className="relative z-10 pb-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="bg-gradient-to-r from-yellow-500 to-amber-500 px-4 py-2 rounded-full border-2 border-yellow-400">
+                          <CardTitle className="text-xl font-black text-black">🎲 TABLE {room.roomId}</CardTitle>
+                        </div>
+                        <Badge 
+                          className={`px-3 py-1 font-bold text-sm border-2 ${
+                            room.status === 'waiting' 
+                              ? 'bg-green-500 border-green-400 text-white animate-pulse' 
+                              : 'bg-red-500 border-red-400 text-white'
+                          }`}
+                        >
+                          {room.status === 'waiting' ? 'OPEN' : 'BUSY'}
                     </Badge>
                   </div>
-                  <CardDescription className="text-slate-400">
-                    Created on {formatDate(room.createdAt)}
+                      <CardDescription className="text-slate-300 font-medium">
+                        🕒 Created: {formatDate(room.createdAt)}
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="space-y-4">
-                  <div className="flex justify-center items-center gap-4">
-                    <div className="text-lg text-slate-300 font-medium">Players:</div>
-                    <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                      {room.currentPlayers} / {room.maxPlayers}
+                    <CardContent className="relative z-10 space-y-6">
+                      {/* Premium Stats Display */}
+                      <div className="bg-black/50 rounded-2xl p-4 border-2 border-yellow-500/30 backdrop-blur-sm">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center">
+                            <p className="text-yellow-400 font-bold text-xs mb-1 sm:mb-2 tracking-wider">💵 ENTRY FEE</p>
+                            <p className="text-white font-black text-lg">₹{room.entryFee}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-green-400 font-bold text-xs mb-1 sm:mb-2 tracking-wider">🏆 WIN AMOUNT</p>
+                            <p className="text-white font-black text-lg">₹{(room.entryFee * room.winningMultiplier).toFixed(0)}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-purple-400 font-bold text-xs mb-1 sm:mb-2 tracking-wider">⚡ MULTIPLIER</p>
+                            <p className="text-white font-black text-lg">x{room.winningMultiplier}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-blue-400 font-bold text-xs mb-1 sm:mb-2 tracking-wider">👥 PLAYERS</p>
+                            <p className="text-white font-black text-lg">{room.currentPlayers}/{room.maxPlayers}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Premium Betting Chips Section with Enhanced Animations */}
+                      <div className="bg-gradient-to-br from-amber-900/50 to-yellow-900/50 rounded-2xl p-4 border-2 border-amber-500/40 shadow-xl hover:shadow-2xl transition-all duration-300">
+                        <h3 className="text-center font-black text-amber-400 mb-3 text-sm tracking-wider animate-pulse">⚡ PREMIUM BETTING CHIPS ⚡</h3>
+                        <div className="flex justify-center gap-3">
+                          <div className="relative group">
+                            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full border-3 border-white/70 shadow-lg flex items-center justify-center cursor-pointer transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-green-500/50 animate-pulse">
+                              <span className="text-white font-black text-sm group-hover:animate-bounce">SMALL</span>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs text-green-400 font-bold whitespace-nowrap animate-bounce" style={{ animationDelay: '0.2s', animationDuration: '1.5s' }}>1-5</div>
+                            {/* Chip sparkle effect */}
+                            <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full animate-ping opacity-75" style={{ animationDelay: '0.5s' }}></div>
+                          </div>
+                          <div className="relative group">
+                            <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-full border-3 border-white/70 shadow-lg flex items-center justify-center cursor-pointer transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-red-500/50 animate-pulse" style={{ animationDelay: '0.3s' }}>
+                              <span className="text-white font-black text-sm group-hover:animate-bounce">BIG</span>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs text-red-400 font-bold whitespace-nowrap animate-bounce" style={{ animationDelay: '0.8s', animationDuration: '1.5s' }}>6-9</div>
+                            {/* Chip sparkle effect */}
+                            <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full animate-ping opacity-75" style={{ animationDelay: '1s' }}></div>
+                          </div>
                     </div>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex flex-col gap-2">
-                  {room.status === 'waiting' && room.currentPlayers < room.maxPlayers ? (
+                    <CardFooter className="relative z-10 pt-4">
+                      <div className="relative w-full">
+                        {/* Button glow effect */}
+                        {room.status === 'waiting' && room.currentPlayers < room.maxPlayers && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl blur-lg opacity-20 animate-pulse"></div>
+                        )}
+                        
                     <Button 
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-800 hover:from-blue-700 hover:to-purple-900 border-none" 
+                          className={`relative w-full font-black text-lg py-4 rounded-2xl border-4 transition-all duration-300 transform ${
+                            room.status === 'waiting' && room.currentPlayers < room.maxPlayers
+                              ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-green-400 text-white shadow-xl hover:shadow-green-500/40 hover:scale-105 hover:-translate-y-1 animate-pulse'
+                              : 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500 text-gray-300 cursor-not-allowed opacity-70'
+                          }`}
                       onClick={() => openPredictionDialog(room)}
-                    >
-                      Join Room
-                    </Button>
+                          disabled={room.status !== 'waiting' || room.currentPlayers >= room.maxPlayers}
+                        >
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            {room.currentPlayers >= room.maxPlayers ? (
+                              <>
+                                <span className="animate-pulse">🚫</span>
+                                <span>TABLE FULL</span>
+                              </>
                   ) : room.status !== 'waiting' ? (
-                    <Button disabled className="w-full bg-slate-700 text-slate-400">
-                      Game in progress
+                              <>
+                                <span className="animate-spin">⏳</span>
+                                <span>GAME IN PROGRESS</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="animate-bounce">🎮</span>
+                                <span>JOIN TABLE</span>
+                                <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>💎</span>
+                              </>
+                            )}
+                          </span>
+                          
+                          {/* Button sparkle effects for available tables */}
+                          {room.status === 'waiting' && room.currentPlayers < room.maxPlayers && (
+                            <>
+                              <div className="absolute top-2 left-4 w-1 h-1 bg-white rounded-full animate-ping opacity-60" style={{ animationDelay: '0s' }}></div>
+                              <div className="absolute bottom-2 right-4 w-1 h-1 bg-white rounded-full animate-ping opacity-60" style={{ animationDelay: '0.5s' }}></div>
+                              <div className="absolute top-2 right-8 w-0.5 h-0.5 bg-yellow-300 rounded-full animate-ping opacity-80" style={{ animationDelay: '1s' }}></div>
+                            </>
+                          )}
                     </Button>
-                  ) : (
-                    <Button disabled className="w-full bg-slate-700 text-slate-400">
-                      Room Full
-                    </Button>
-                  )}
+                      </div>
                 </CardFooter>
               </Card>
+                </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="text-center py-12">
-          <div className="inline-block p-4 rounded-full bg-blue-500/10 mb-4">
-            <Target className="h-10 w-10 text-blue-500" />
+          /* Premium Empty State */
+          <div className="text-center py-16">
+            <div className="relative inline-block mb-8">
+              <div className="w-32 h-32 bg-gradient-to-br from-red-500/20 via-yellow-500/20 via-green-500/20 to-blue-500/20 rounded-full animate-pulse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <svg className="w-16 h-16 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
           </div>
-          <h3 className="text-xl font-medium mb-2">No Game Rooms Available</h3>
-          <p className="text-muted-foreground">
-            There are currently no active game rooms. Please check back later.
-          </p>
+            <h3 className="text-3xl font-black text-white mb-4">🎰 No Tables Available 🎰</h3>
+            <p className="text-slate-400 text-lg max-w-md mx-auto">
+              All casino tables are currently busy. New tables open every few minutes - check back soon for your chance to win big!
+            </p>
+            <div className="flex justify-center gap-3 mt-6">
+              <div className="w-6 h-6 rounded-full animate-bounce bg-green-500" style={{ animationDelay: '0s' }}></div>
+              <div className="w-6 h-6 rounded-full animate-bounce bg-red-500" style={{ animationDelay: '0.3s' }}></div>
+              <div className="w-6 h-6 rounded-full animate-bounce bg-blue-500" style={{ animationDelay: '0.6s' }}></div>
+              <div className="w-6 h-6 rounded-full animate-bounce bg-yellow-500" style={{ animationDelay: '0.9s' }}></div>
+            </div>
         </div>
       )}
 
-      {/* Prediction Dialog */}
+                {/* Premium Casino Prediction Dialog */}
       <Dialog open={isPredicting} onOpenChange={(open) => setIsPredicting(open)}>
-        <DialogContent className="bg-gradient-to-br from-[#1E2749] to-[#161A35] text-white border border-blue-500/20 sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Make Your Prediction</DialogTitle>
-            <DialogDescription className="text-slate-400">
-              Select a number (1-5 for Small, 6-9 for Big) and enter your bet amount.
+        <DialogContent className="bg-gradient-to-br from-black via-gray-900 to-slate-800 text-white border-4 border-yellow-500/50 w-[98vw] sm:w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] max-w-6xl max-h-[95vh] overflow-y-auto shadow-2xl shadow-yellow-500/30 p-0 animate-in zoom-in-95 duration-300">
+          {/* Premium Casino Header with Enhanced Animations */}
+          <div className="relative bg-gradient-to-r from-red-600 via-yellow-500 via-green-500 to-blue-600 p-1 rounded-t-2xl animate-pulse">
+            <div className="bg-black/90 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-t-2xl relative overflow-hidden">
+              {/* Animated Background Elements */}
+              <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-yellow-900/20 to-green-900/20 animate-pulse"></div>
+              <div className="absolute top-2 right-4 w-8 h-8 bg-yellow-400/20 rounded-full animate-ping"></div>
+              <div className="absolute bottom-2 left-4 w-6 h-6 bg-red-400/20 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-green-400/20 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+              
+              <DialogHeader className="text-center relative z-10">
+                <DialogTitle className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-yellow-400 tracking-wider mb-3 sm:mb-4 drop-shadow-xl animate-pulse">
+                  <span className="inline-block animate-bounce" style={{ animationDelay: '0s' }}>🎰</span>
+                  <span className="mx-2 sm:mx-4">PLACE YOUR BET</span>
+                  <span className="inline-block animate-bounce" style={{ animationDelay: '0.2s' }}>🎰</span>
+                </DialogTitle>
+                <DialogDescription className="text-yellow-200 text-base sm:text-lg md:text-xl lg:text-2xl font-bold">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-3">
+                    <span className="animate-pulse">🔥 Choose Your Lucky Numbers 🔥</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+                    <span className="text-green-400 font-black bg-green-900/30 px-3 py-1 rounded-full border border-green-400/50 animate-pulse">
+                      SMALL (1-5)
+                    </span>
+                    <span className="text-white font-black text-xl animate-bounce">VS</span>
+                    <span className="text-red-400 font-black bg-red-900/30 px-3 py-1 rounded-full border border-red-400/50 animate-pulse" style={{ animationDelay: '0.3s' }}>
+                      BIG (6-9)
+                    </span>
+                  </div>
             </DialogDescription>
           </DialogHeader>
+            </div>
+          </div>
 
-          <div className="space-y-5 py-3">
-            {/* Pool Balls */}
-            <div className="space-y-3">
-              <div className="text-sm font-medium text-slate-300">Select a Number:</div>
-              <div className="flex justify-center flex-wrap gap-3">
-                {[1, 2, 3, 4, 5].map((number) => {
+          <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
+            {/* Premium Gaming Table Style Number Selection */}
+            <div className="relative bg-gradient-to-br from-green-800 to-green-900 p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl sm:rounded-3xl border-4 border-yellow-500/40 shadow-2xl overflow-hidden">
+              {/* Casino Table Ambiance */}
+              <div className="absolute inset-0 bg-gradient-to-br from-green-900/60 to-emerald-900/60 animate-pulse"></div>
+              <div className="absolute top-4 right-8 w-12 h-12 bg-yellow-400/10 rounded-full animate-ping"></div>
+              <div className="absolute bottom-4 left-8 w-8 h-8 bg-red-400/10 rounded-full animate-ping" style={{ animationDelay: '0.7s' }}></div>
+              
+              {/* Premium Table Header */}
+              <div className="text-center mb-6 sm:mb-8 md:mb-10 relative z-10">
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-700 rounded-full blur-lg opacity-50 animate-pulse"></div>
+                  <div className="relative bg-red-600 text-white px-4 sm:px-6 md:px-8 lg:px-12 py-2 sm:py-3 md:py-4 rounded-full font-black text-base sm:text-lg md:text-xl lg:text-2xl shadow-2xl border-4 border-yellow-400 transform hover:scale-105 transition-all duration-300">
+                    <span className="animate-bounce inline-block">🎱</span>
+                    <span className="mx-2 sm:mx-4">SELECT YOUR NUMBER</span>
+                    <span className="animate-bounce inline-block" style={{ animationDelay: '0.2s' }}>🎱</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced Small Numbers Section */}
+              <div className="relative bg-green-700/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 border-4 border-green-400/40 backdrop-blur-sm overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-600/20 to-emerald-600/20 animate-pulse"></div>
+                <div className="text-center mb-4 sm:mb-6 relative z-10">
+                  <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-green-500 rounded-full blur-lg opacity-30 animate-pulse"></div>
+                    <span className="relative bg-green-500 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3 rounded-full font-black text-sm sm:text-base md:text-lg lg:text-xl shadow-xl border-2 border-green-300">
+                      <span className="animate-pulse">🟢</span>
+                      <span className="mx-2">SMALL (1-5)</span>
+                      <span className="animate-pulse" style={{ animationDelay: '0.3s' }}>🟢</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-5 gap-2 sm:gap-3 md:gap-4 lg:gap-6 max-w-2xl mx-auto">
+                                {[1, 2, 3, 4, 5].map((number, index) => {
                   const ballColors = {
                     1: 'bg-gradient-to-br from-yellow-400 to-yellow-600',
                     2: 'bg-gradient-to-br from-blue-500 to-blue-700', 
@@ -452,31 +681,70 @@ const BigSmallGame = () => {
                   };
                   
                   return (
+                    <div key={number} className="relative group">
                     <button
-                      key={number}
                       onClick={() => handleNumberSelect(number)}
-                      className={`relative w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold transition-all transform hover:scale-105 shadow-lg ${
+                        className={`relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 rounded-full transition-all duration-500 transform hover:scale-110 hover:rotate-12 shadow-2xl group-hover:shadow-3xl ${
                         selectedNumber === number
-                          ? 'ring-4 ring-green-400 ring-opacity-75 scale-110 shadow-2xl'
+                            ? 'ring-4 ring-yellow-400 scale-125 shadow-yellow-400/60 animate-bounce'
                           : 'hover:shadow-xl'
                       }`}
-                    >
-                      {/* Pool ball gradient background */}
-                      <div className={`absolute inset-0 rounded-full ${ballColors[number as keyof typeof ballColors]}`}></div>
-                      
-                      {/* White circle for number */}
-                      <div className="relative w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-inner">
-                        <span className="text-black text-sm font-bold">{number}</span>
+                        style={{ 
+                          animation: selectedNumber === number ? 'bounce 0.6s infinite' : `fadeInScale 0.4s ease-out ${index * 0.1}s both`
+                        }}
+                      >
+                        {/* Enhanced Casino Chip Design */}
+                        <div className={`absolute inset-0 rounded-full ${ballColors[number as keyof typeof ballColors]} border-4 border-white shadow-2xl`}>
+                          {/* Chip pattern rings */}
+                          <div className="absolute inset-2 rounded-full border-2 border-white/30"></div>
+                          <div className="absolute inset-4 rounded-full border border-white/20"></div>
+                        </div>
+                        
+                        {/* Number Display with Enhanced Design */}
+                        <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center border-4 border-gray-300 shadow-inner overflow-hidden">
+                          <span className="text-black text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black z-10 relative">{number}</span>
+                          {/* Number background pattern */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 rounded-full"></div>
                       </div>
                       
-                      {/* Shine effect */}
-                      <div className="absolute top-1 left-2 w-3 h-3 bg-white opacity-40 rounded-full blur-sm"></div>
+                        {/* Enhanced Casino Effects */}
+                        <div className="absolute top-1 left-2 w-3 h-3 sm:w-4 sm:h-4 bg-white/80 rounded-full blur-sm animate-pulse"></div>
+                        <div className="absolute bottom-2 right-2 w-2 h-2 bg-white/60 rounded-full blur-sm animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                        
+                        {/* Selection Effects */}
+                        {selectedNumber === number && (
+                          <>
+                            <div className="absolute -inset-3 rounded-full border-4 border-yellow-400 animate-ping"></div>
+                            <div className="absolute -inset-6 rounded-full border-2 border-yellow-300 animate-ping opacity-50" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="absolute inset-0 rounded-full bg-yellow-400/20 animate-pulse"></div>
+                          </>
+                        )}
+                        
+                        {/* Hover sparkles */}
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping transition-opacity duration-300"></div>
+                        <div className="absolute -bottom-1 -left-1 w-1 h-1 bg-white rounded-full opacity-0 group-hover:opacity-100 animate-ping transition-opacity duration-300" style={{ animationDelay: '0.3s' }}></div>
                     </button>
+                    </div>
                   );
                 })}
+                </div>
               </div>
-              <div className="flex justify-center flex-wrap gap-3">
-                {[6, 7, 8, 9].map((number) => {
+
+                            {/* Enhanced Big Numbers Section */}
+              <div className="relative bg-red-700/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border-4 border-red-400/40 backdrop-blur-sm overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-red-800/20 animate-pulse"></div>
+                <div className="text-center mb-4 sm:mb-6 relative z-10">
+                  <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-red-500 rounded-full blur-lg opacity-30 animate-pulse"></div>
+                    <span className="relative bg-red-500 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3 rounded-full font-black text-sm sm:text-base md:text-lg lg:text-xl shadow-xl border-2 border-red-300">
+                      <span className="animate-pulse">🔴</span>
+                      <span className="mx-2">BIG (6-9)</span>
+                      <span className="animate-pulse" style={{ animationDelay: '0.3s' }}>🔴</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6 max-w-xl mx-auto">
+                {[6, 7, 8, 9].map((number, index) => {
                   const ballColors = {
                     6: 'bg-gradient-to-br from-green-500 to-green-700',
                     7: 'bg-gradient-to-br from-red-800 to-red-900',
@@ -485,83 +753,297 @@ const BigSmallGame = () => {
                   };
                   
                   return (
+                    <div key={number} className="relative group">
                     <button
-                      key={number}
                       onClick={() => handleNumberSelect(number)}
-                      className={`relative w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold transition-all transform hover:scale-105 shadow-lg ${
+                        className={`relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 rounded-full transition-all duration-500 transform hover:scale-110 hover:rotate-12 shadow-2xl group-hover:shadow-3xl ${
                         selectedNumber === number
-                          ? 'ring-4 ring-blue-400 ring-opacity-75 scale-110 shadow-2xl'
+                            ? 'ring-4 ring-yellow-400 scale-125 shadow-yellow-400/60 animate-bounce'
                           : 'hover:shadow-xl'
                       }`}
-                    >
-                      {/* Pool ball gradient background */}
-                      <div className={`absolute inset-0 rounded-full ${ballColors[number as keyof typeof ballColors]}`}></div>
-                      
-                      {/* White circle for number */}
-                      <div className="relative w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-inner">
-                        <span className="text-black text-sm font-bold">{number}</span>
+                        style={{ 
+                          animation: selectedNumber === number ? 'bounce 0.6s infinite' : `fadeInScale 0.4s ease-out ${(index + 5) * 0.1}s both`
+                        }}
+                      >
+                        {/* Enhanced Casino Chip Design */}
+                        <div className={`absolute inset-0 rounded-full ${ballColors[number as keyof typeof ballColors]} border-4 border-white shadow-2xl`}>
+                          {/* Chip pattern rings */}
+                          <div className="absolute inset-2 rounded-full border-2 border-white/30"></div>
+                          <div className="absolute inset-4 rounded-full border border-white/20"></div>
+                        </div>
+                        
+                        {/* Number Display with Enhanced Design */}
+                        <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center border-4 border-gray-300 shadow-inner overflow-hidden">
+                          <span className="text-black text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black z-10 relative">{number}</span>
+                          {/* Number background pattern */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 rounded-full"></div>
                       </div>
                       
-                      {/* Shine effect */}
-                      <div className="absolute top-1 left-2 w-3 h-3 bg-white opacity-40 rounded-full blur-sm"></div>
+                        {/* Enhanced Casino Effects */}
+                        <div className="absolute top-1 left-2 w-3 h-3 sm:w-4 sm:h-4 bg-white/80 rounded-full blur-sm animate-pulse"></div>
+                        <div className="absolute bottom-2 right-2 w-2 h-2 bg-white/60 rounded-full blur-sm animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                        
+                        {/* Selection Effects */}
+                        {selectedNumber === number && (
+                          <>
+                            <div className="absolute -inset-3 rounded-full border-4 border-yellow-400 animate-ping"></div>
+                            <div className="absolute -inset-6 rounded-full border-2 border-yellow-300 animate-ping opacity-50" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="absolute inset-0 rounded-full bg-yellow-400/20 animate-pulse"></div>
+                          </>
+                        )}
+                        
+                        {/* Hover sparkles */}
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping transition-opacity duration-300"></div>
+                        <div className="absolute -bottom-1 -left-1 w-1 h-1 bg-white rounded-full opacity-0 group-hover:opacity-100 animate-ping transition-opacity duration-300" style={{ animationDelay: '0.3s' }}></div>
                     </button>
+                    </div>
                   );
                 })}
+                </div>
               </div>
 
+              {/* Enhanced Prediction Display */}
               {selectedNumber !== null && (
-                <div className="text-center mt-3 text-sm">
-                  <span className="px-3 py-1 rounded-full bg-slate-700">
-                    Prediction: <span className={`font-bold ${predictionType === 'small' ? 'text-green-400' : 'text-blue-400'}`}>
+                <div className="text-center mt-6 sm:mt-8 md:mt-10 relative z-10">
+                  <div className="relative inline-block">
+                    {/* Glow effect behind prediction */}
+                    <div className={`absolute inset-0 blur-xl opacity-40 animate-pulse ${
+                      predictionType === 'small' 
+                        ? 'bg-gradient-to-r from-green-400 to-green-600' 
+                        : 'bg-gradient-to-r from-red-400 to-red-600'
+                    } rounded-full`}></div>
+                    
+                    <div className={`relative inline-flex items-center px-6 sm:px-8 md:px-12 lg:px-16 py-3 sm:py-4 md:py-5 lg:py-6 rounded-full shadow-2xl border-4 animate-bounce ${
+                      predictionType === 'small' 
+                        ? 'bg-gradient-to-r from-green-500 to-green-600 border-green-300' 
+                        : 'bg-gradient-to-r from-red-500 to-red-600 border-red-300'
+                    }`}>
+                      <span className="text-white font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl mr-3 sm:mr-4 md:mr-6 animate-bounce">🎯</span>
+                      <span className="text-white font-black text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl tracking-widest">
                       {predictionType?.toUpperCase()}
                     </span>
-                  </span>
+                      <span className="text-white font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl ml-3 sm:ml-4 md:ml-6 animate-bounce" style={{ animationDelay: '0.2s' }}>🎯</span>
+                      
+                      {/* Sparkles around prediction */}
+                      <div className="absolute -top-2 -left-2 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                      <div className="absolute -top-2 -right-2 w-3 h-3 bg-yellow-400 rounded-full animate-ping" style={{ animationDelay: '0.3s' }}></div>
+                      <div className="absolute -bottom-2 -left-2 w-2 h-2 bg-white rounded-full animate-ping" style={{ animationDelay: '0.6s' }}></div>
+                      <div className="absolute -bottom-2 -right-2 w-2 h-2 bg-white rounded-full animate-ping" style={{ animationDelay: '0.9s' }}></div>
+                    </div>
+                  </div>
+                  
+                  {/* Selected number display */}
+                  <div className="mt-4 sm:mt-6">
+                    <div className="inline-block bg-black/70 backdrop-blur-sm px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-full border-2 border-yellow-400/50 animate-pulse">
+                      <span className="text-yellow-400 font-bold text-sm sm:text-base md:text-lg">SELECTED NUMBER:</span>
+                      <span className="text-white font-black text-lg sm:text-xl md:text-2xl ml-2">{selectedNumber}</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Bet Amount */}
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-slate-300">Your Bet Amount (₹):</div>
-              <div className="flex flex-col gap-2">
+                        {/* Premium Casino Betting Section */}
+            <div className="relative bg-gradient-to-br from-purple-900 to-indigo-900 p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl sm:rounded-3xl border-4 border-yellow-500/40 shadow-2xl overflow-hidden">
+              {/* Betting section ambiance */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-800/30 to-indigo-800/30 animate-pulse"></div>
+              <div className="absolute top-6 left-8 w-10 h-10 bg-yellow-400/10 rounded-full animate-ping"></div>
+              <div className="absolute bottom-6 right-8 w-8 h-8 bg-green-400/10 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+              
+              <div className="text-center mb-6 sm:mb-8 relative z-10">
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full blur-lg opacity-40 animate-pulse"></div>
+                  <div className="relative bg-yellow-500 text-black px-4 sm:px-6 md:px-8 lg:px-12 py-2 sm:py-3 md:py-4 rounded-full font-black text-base sm:text-lg md:text-xl lg:text-2xl shadow-2xl border-4 border-yellow-300 transform hover:scale-105 transition-all duration-300">
+                    <span className="animate-bounce inline-block">💰</span>
+                    <span className="mx-2 sm:mx-4">PLACE YOUR BET</span>
+                    <span className="animate-bounce inline-block" style={{ animationDelay: '0.2s' }}>💰</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-6 sm:space-y-8 relative z-10">
+                {/* Enhanced Bet Input */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-gray-900/60 rounded-2xl blur-sm"></div>
+                  <div className="relative bg-black/80 rounded-2xl p-4 sm:p-6 border-4 border-yellow-500/50 backdrop-blur-sm">
+                    <div className="relative">
+                      <div className="absolute left-4 sm:left-6 top-1/2 transform -translate-y-1/2 text-yellow-400 font-black text-2xl sm:text-3xl md:text-4xl animate-pulse">₹</div>
                 <Input
                   type="number"
                   value={betAmount}
                   onChange={(e) => setBetAmount(e.target.value)}
                   placeholder="Enter bet amount"
-                  className="bg-slate-800 border-slate-700 text-white"
+                        className="bg-transparent border-0 text-white text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black py-4 sm:py-6 md:py-8 pl-12 sm:pl-16 md:pl-20 pr-4 rounded-xl focus:ring-4 focus:ring-yellow-400/30 placeholder:text-gray-400 min-h-[60px] sm:min-h-[80px]"
                   min="1"
                 />
-                <div className="text-xs text-slate-400">
-                  Your wallet balance: <span className="text-green-400">₹{walletData.game}</span>
+                      {/* Input sparkles */}
+                      <div className="absolute top-2 right-4 w-2 h-2 bg-yellow-400 rounded-full animate-ping opacity-60"></div>
+                      <div className="absolute bottom-2 right-6 w-1 h-1 bg-white rounded-full animate-ping opacity-60" style={{ animationDelay: '0.5s' }}></div>
+                    </div>
+                  </div>
                 </div>
                 
-                {/* Debug Info */}
-                {/* <div className="text-xs text-red-400 p-2 bg-slate-800 rounded">
-                  Debug: Number={selectedNumber} | Type={predictionType} | Amount={betAmount} | 
-                  Valid Amount: {parseFloat(betAmount || '0') > 0 ? 'Yes' : 'No'} | 
-                  Sufficient Funds: {parseFloat(betAmount || '0') <= walletData.game ? 'Yes' : 'No'}
-                </div> */}
+                {/* Enhanced Wallet Balance */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-800/40 to-emerald-800/40 rounded-2xl blur-sm animate-pulse"></div>
+                  <div className="relative bg-black/70 rounded-2xl p-4 sm:p-6 md:p-8 border-4 border-green-500/40 backdrop-blur-sm">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center animate-pulse">
+                          <span className="text-lg sm:text-xl md:text-2xl">💎</span>
+                        </div>
+                        <span className="text-yellow-300 font-bold text-base sm:text-lg md:text-xl lg:text-2xl">
+                          WALLET BALANCE
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <span className="text-green-400 font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
+                          ₹{walletData.game.toFixed(2)}
+                        </span>
+                        {/* Balance highlight effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-400/20 to-transparent animate-pulse"></div>
+                      </div>
+                    </div>
+                    {/* Balance sparkles */}
+                    <div className="absolute top-2 left-4 w-2 h-2 bg-green-400 rounded-full animate-ping opacity-40"></div>
+                    <div className="absolute bottom-2 right-4 w-1 h-1 bg-yellow-400 rounded-full animate-ping opacity-40" style={{ animationDelay: '0.7s' }}></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <DialogFooter className="flex flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => setIsPredicting(false)} className="flex-1 bg-transparent border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
-              Cancel
+          {/* Premium Casino Action Buttons */}
+          <DialogFooter className="p-4 sm:p-6 md:p-8 bg-gradient-to-t from-black/60 to-transparent backdrop-blur-sm border-t-4 border-yellow-500/40">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 w-full">
+              {/* Cancel Button */}
+              <div className="relative sm:flex-1">
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur-lg opacity-30 animate-pulse"></div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsPredicting(false)} 
+                  className="relative w-full bg-red-600 border-4 border-red-400 text-white hover:bg-red-700 hover:border-red-300 hover:scale-105 hover:-translate-y-1 font-black text-base sm:text-lg md:text-xl lg:text-2xl py-4 sm:py-5 md:py-6 lg:py-8 rounded-2xl shadow-2xl transition-all duration-300 transform min-h-[60px] sm:min-h-[70px] md:min-h-[80px]"
+                >
+                  <span className="flex items-center justify-center gap-2 sm:gap-3">
+                    <span className="animate-pulse text-xl sm:text-2xl">❌</span>
+                    <span>CANCEL</span>
+                  </span>
+                  {/* Button sparkles */}
+                  <div className="absolute top-2 left-4 w-1 h-1 bg-white rounded-full animate-ping opacity-40"></div>
+                  <div className="absolute bottom-2 right-4 w-1 h-1 bg-red-300 rounded-full animate-ping opacity-40" style={{ animationDelay: '0.5s' }}></div>
             </Button>
+              </div>
+
+              {/* Confirm Button */}
+              <div className="relative sm:flex-1">
+                {/* Enhanced glow for enabled state */}
+                {!(!selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game) && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl blur-xl opacity-40 animate-pulse"></div>
+                )}
+                
             <Button 
               onClick={handleJoinRoom} 
               disabled={!selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-800 hover:from-blue-700 hover:to-purple-900 border-none disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Confirm Bet
+                  className={`relative w-full border-4 font-black text-base sm:text-lg md:text-xl lg:text-2xl py-4 sm:py-5 md:py-6 lg:py-8 rounded-2xl shadow-2xl transition-all duration-300 transform min-h-[60px] sm:min-h-[70px] md:min-h-[80px] ${
+                    !selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game
+                      ? 'bg-gray-600 border-gray-500 text-gray-400 cursor-not-allowed opacity-50'
+                      : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-300 text-white hover:scale-105 hover:-translate-y-1 animate-pulse'
+                  }`}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
+                    {!selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game ? (
+                      <>
+                        <span className="animate-pulse text-xl sm:text-2xl">⚠️</span>
+                        <span>COMPLETE SELECTION</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="animate-bounce text-xl sm:text-2xl">🚀</span>
+                        <span>CONFIRM BET</span>
+                        <span className="animate-bounce text-xl sm:text-2xl" style={{ animationDelay: '0.2s' }}>💎</span>
+                      </>
+                    )}
+                  </span>
+                  
+                  {/* Enhanced button effects for enabled state */}
+                  {!(!selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game) && (
+                    <>
+                      <div className="absolute top-2 left-4 w-2 h-2 bg-yellow-400 rounded-full animate-ping opacity-60"></div>
+                      <div className="absolute top-2 right-4 w-2 h-2 bg-yellow-400 rounded-full animate-ping opacity-60" style={{ animationDelay: '0.3s' }}></div>
+                      <div className="absolute bottom-2 left-4 w-1 h-1 bg-white rounded-full animate-ping opacity-60" style={{ animationDelay: '0.6s' }}></div>
+                      <div className="absolute bottom-2 right-4 w-1 h-1 bg-white rounded-full animate-ping opacity-60" style={{ animationDelay: '0.9s' }}></div>
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-green-300 rounded-full animate-ping opacity-40" style={{ animationDelay: '1.2s' }}></div>
+                    </>
+                  )}
             </Button>
+              </div>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };
 
 export default BigSmallGame;
+
+// Enhanced CSS animations for premium casino experience
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+  }
+  
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+`;
+document.head.appendChild(style);

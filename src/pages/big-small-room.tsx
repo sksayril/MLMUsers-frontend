@@ -729,7 +729,7 @@ const BigSmallRoom = () => {
               </motion.div>
 
               {/* Winner Announcement */}
-              <AnimatePresence>
+              {/* <AnimatePresence>
                 {winner && showWinnerAnimation && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.5, y: 50 }}
@@ -788,7 +788,7 @@ const BigSmallRoom = () => {
                     </div>
                   </motion.div>
                 )}
-              </AnimatePresence>
+              </AnimatePresence> */}
 
               {/* Players List */}
               <motion.div 
