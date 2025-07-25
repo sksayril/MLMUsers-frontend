@@ -196,11 +196,27 @@ const BigSmallRoom = () => {
         }
 
         if (newRoomData.status === 'completed') {
-          const winnerPlayer = response.data.players.find(player => player.hasWon);
-          if (winnerPlayer) {
-            setWinner(winnerPlayer.numberType);
+          // ENHANCED WINNER DETECTION
+          let detectedWinner = null;
+          
+          // Priority 1: Check room's winner type
+          if (newRoomData.winnerType) {
+            detectedWinner = newRoomData.winnerType;
+          } 
+          // Priority 2: Find winner from players list
+          else {
+            const winnerPlayer = response.data.players.find(player => player.hasWon);
+            if (winnerPlayer) {
+              detectedWinner = winnerPlayer.numberType;
+            }
+          }
+
+          // Update winner state if detected
+          if (detectedWinner) {
+            setWinner(detectedWinner);
             setShowWinnerAnimation(true);
             
+            // Ensure result countdown is set
             if (resultCountdown === null && !resultTimerRef.current) {
               setResultCountdown(10);
               resultTimerRef.current = setInterval(() => {
@@ -214,7 +230,11 @@ const BigSmallRoom = () => {
               }, 1000);
             }
           }
-          pollingRef.current = false;
+
+          // Stop polling after a short delay to ensure winner is set
+          setTimeout(() => {
+            pollingRef.current = false;
+          }, 2000);
         }
       }
     } catch (error) {
@@ -305,6 +325,17 @@ const BigSmallRoom = () => {
       if (resultTimerRef.current) clearInterval(resultTimerRef.current);
     };
   }, [fetchRoomDetails, generateBalls]);
+
+  // Handle winner detection when room data changes
+  useEffect(() => {
+    if (roomData && roomData.status === 'completed') {
+      // If room is completed but winner is not set, try to set it
+      if (!winner && roomData.winnerType) {
+        setWinner(roomData.winnerType);
+        setShowWinnerAnimation(true);
+      }
+    }
+  }, [roomData, winner]);
 
   // Format functions
   const formatJoinTime = (dateString: string) => {
@@ -677,43 +708,311 @@ const BigSmallRoom = () => {
                   </motion.div>
                 )}
                 
-                {/* Winner Announcement (when game is completed) */}
-                {roomData.status === 'completed' && winner && !showResultPopup && (
-                  <motion.div
-                    className="relative bg-gradient-to-r from-purple-900/60 via-pink-900/60 to-indigo-900/60 p-8 rounded-2xl border border-yellow-500/50 overflow-hidden mb-8 flex flex-col items-center justify-center"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6 }}
-                  >
+                  {/* Winner Announcement (when game is completed) */}
+                  {roomData.status === 'completed' && (winner || roomData.winnerType) && !showResultPopup && (
+                    /* REAL CASINO WINNER ANNOUNCEMENT */
                     <motion.div
-                      className="absolute inset-0 pointer-events-none"
-                      animate={{ x: [-100, 300] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      {/* Decorative gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/20" />
-                    </motion.div>
-                    <div className="relative z-10 text-center">
+                      {/* Casino Stage Background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-indigo-900/40 to-pink-900/40"></div>
+                      
+                      {/* Animated Stage Lights */}
+                      <div className="absolute inset-0 overflow-hidden">
+                        {[...Array(6)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-32 h-32 rounded-full blur-3xl opacity-30"
+                            style={{
+                              left: `${(i * 20) % 100}%`,
+                              top: `${(i * 15) % 100}%`,
+                              background: `hsl(${i * 60}, 70%, 60%)`,
+                            }}
+                            animate={{
+                              scale: [1, 1.5, 1],
+                              opacity: [0.3, 0.6, 0.3],
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity,
+                              delay: i * 0.5,
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Main Casino Winner Display */}
                       <motion.div
-                        animate={{ rotate: [0, 360] }}
-                        transition={{ duration: 2, ease: 'easeInOut' }}
-                        className="inline-block mb-4"
+                        className="relative w-full max-w-4xl mx-4 bg-gradient-to-br from-black/90 via-gray-900/90 to-black/90 rounded-3xl border-4 border-gradient-to-r from-yellow-500/80 via-amber-500/80 to-yellow-500/80 shadow-2xl shadow-yellow-500/30 overflow-hidden"
+                        initial={{ scale: 0.5, y: 100, opacity: 0 }}
+                        animate={{ scale: 1, y: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
                       >
-                        <Trophy className="h-16 w-16 text-yellow-400" />
+                        {/* Casino Stage Curtains */}
+                        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-red-600/80 to-transparent"></div>
+                        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-red-800/60 to-transparent" style={{ animationDelay: '0.1s' }}></div>
+                        
+                        {/* Floating Casino Chips */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          {[...Array(12)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className={`absolute w-${Math.floor(Math.random() * 4) + 3} h-${Math.floor(Math.random() * 4) + 3} rounded-full ${
+                                ['bg-yellow-400', 'bg-red-400', 'bg-green-400', 'bg-blue-400', 'bg-purple-400'][i % 5]
+                              } opacity-60`}
+                              style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                              }}
+                              animate={{
+                                y: [0, -30, 0],
+                                rotate: [0, 360],
+                                scale: [1, 1.2, 1],
+                              }}
+                              transition={{
+                                duration: 3 + Math.random() * 2,
+                                repeat: Infinity,
+                                delay: i * 0.3,
+                              }}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Shimmer Effect */}
+                        <motion.div
+                          className="absolute inset-0 pointer-events-none"
+                          animate={{ x: [-200, 600] }}
+                          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent transform -skew-x-12" />
+                        </motion.div>
+
+                        {/* Content Container */}
+                        <div className="relative z-10 p-8 sm:p-12 md:p-16 text-center">
+                          {/* Casino Logo/Title */}
+                          <motion.div
+                            className="mb-8"
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.4 }}
+                          >
+                            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-500 to-amber-500 px-6 py-3 rounded-full border-2 border-yellow-300 shadow-lg">
+                              <span className="text-2xl">🎰</span>
+                              <span className="text-white font-black text-lg tracking-wider">CASINO ROYALE</span>
+                              <span className="text-2xl">🎰</span>
+                            </div>
+                          </motion.div>
+
+                          {/* Massive Trophy Display */}
+                          <motion.div
+                            className="relative inline-block mb-8"
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ duration: 1, delay: 0.6, type: "spring", bounce: 0.4 }}
+                          >
+                            {/* Trophy Glow Rings */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full blur-2xl opacity-60 animate-pulse"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full blur-xl opacity-40 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                            
+                            {/* Main Trophy */}
+                            <div className="relative bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 p-6 rounded-full border-4 border-yellow-300 shadow-2xl">
+                              <Trophy className="h-24 w-24 text-yellow-800 drop-shadow-lg" />
+                            </div>
+                            
+                            {/* Trophy Sparkles */}
+                            {[...Array(8)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="absolute w-3 h-3 bg-yellow-300 rounded-full"
+                                style={{
+                                  left: `${Math.cos(i * 45 * Math.PI / 180) * 60 + 50}%`,
+                                  top: `${Math.sin(i * 45 * Math.PI / 180) * 60 + 50}%`,
+                                }}
+                                animate={{
+                                  scale: [0, 1, 0],
+                                  opacity: [0, 1, 0],
+                                }}
+                                transition={{
+                                  duration: 1.5,
+                                  repeat: Infinity,
+                                  delay: i * 0.2,
+                                }}
+                              />
+                            ))}
+                          </motion.div>
+
+                          {/* Winner Announcement */}
+                          <motion.div
+                            className="mb-8"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8, delay: 0.8 }}
+                          >
+                            {/* Winner Type Badge */}
+                            <motion.div
+                              className={`inline-flex items-center gap-3 px-8 py-4 rounded-full border-3 shadow-2xl mb-6 ${
+                                (winner || roomData.winnerType) === 'big' 
+                                  ? 'bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-800 border-blue-400' 
+                                  : 'bg-gradient-to-r from-green-600 via-emerald-600 to-green-800 border-green-400'
+                              }`}
+                              animate={{
+                                boxShadow: [
+                                  "0 0 20px rgba(59, 130, 246, 0.5)",
+                                  "0 0 40px rgba(59, 130, 246, 0.8)",
+                                  "0 0 20px rgba(59, 130, 246, 0.5)"
+                                ]
+                              }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                                                             <span className="text-3xl">
+                                 {(winner || roomData.winnerType) === 'big' ? '🔴' : '🟢'}
+                               </span>
+                               <span className="text-white font-black text-2xl tracking-wider">
+                                 {(winner || roomData.winnerType) === 'big' ? 'BIG PREDICTION' : 'SMALL PREDICTION'}
+                               </span>
+                               <span className="text-3xl">
+                                 {(winner || roomData.winnerType) === 'big' ? '🔴' : '🟢'}
+                               </span>
+                            </motion.div>
+
+                            {/* Main Winner Text */}
+                            <motion.h2
+                              className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-4 tracking-wider ${
+                                (winner || roomData.winnerType) === 'big' 
+                                  ? 'bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600' 
+                                  : 'bg-gradient-to-r from-green-400 via-emerald-400 to-green-600'
+                              } bg-clip-text text-transparent`}
+                              animate={{
+                                scale: [1, 1.05, 1],
+                                textShadow: [
+                                  "0 0 20px rgba(59, 130, 246, 0.5)",
+                                  "0 0 40px rgba(59, 130, 246, 0.8)",
+                                  "0 0 20px rgba(59, 130, 246, 0.5)"
+                                ]
+                              }}
+                              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                              {(winner || roomData.winnerType) === 'big' ? 'BIG WINS!' : 'SMALL WINS!'}
+                            </motion.h2>
+
+                            {/* Celebration Emojis */}
+                            <motion.div
+                              className="flex items-center justify-center gap-4 mb-6"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ duration: 0.8, delay: 1 }}
+                            >
+                              <motion.span
+                                className="text-6xl sm:text-7xl md:text-8xl"
+                                animate={{
+                                  y: [0, -20, 0],
+                                  rotate: [0, 10, -10, 0],
+                                }}
+                                transition={{ duration: 1, repeat: Infinity }}
+                              >
+                                🎉
+                              </motion.span>
+                              <motion.span
+                                className="text-6xl sm:text-7xl md:text-8xl"
+                                animate={{
+                                  y: [0, -20, 0],
+                                  rotate: [0, -10, 10, 0],
+                                }}
+                                transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                              >
+                                🏆
+                              </motion.span>
+                              <motion.span
+                                className="text-6xl sm:text-7xl md:text-8xl"
+                                animate={{
+                                  y: [0, -20, 0],
+                                  rotate: [0, 10, -10, 0],
+                                }}
+                                transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                              >
+                                💎
+                              </motion.span>
+                            </motion.div>
+
+                            {/* Subtitle */}
+                            <motion.p
+                              className="text-yellow-300 text-2xl sm:text-3xl font-bold mb-4"
+                              animate={{ opacity: [0.7, 1, 0.7] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              ⚡ CONGRATULATIONS WINNERS! ⚡
+                            </motion.p>
+
+                            <motion.p
+                              className="text-slate-300 text-xl sm:text-2xl font-semibold"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ duration: 0.8, delay: 1.2 }}
+                            >
+                              All {(winner || roomData.winnerType) === 'big' ? 'Big' : 'Small'} prediction players are victorious! 🎊
+                            </motion.p>
+                          </motion.div>
+
+                          {/* Casino Sound Effects Indicator */}
+                          <motion.div
+                            className="flex items-center justify-center gap-2 text-yellow-400 text-sm"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.8, delay: 1.4 }}
+                          >
+                            <span className="animate-pulse">🔊</span>
+                            <span className="font-semibold">CASINO WIN SOUNDS PLAYING</span>
+                            <span className="animate-pulse">🔊</span>
+                          </motion.div>
+                        </div>
+
+                        {/* Celebration Particles */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          {[...Array(20)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className={`absolute w-${Math.floor(Math.random() * 3) + 2} h-${Math.floor(Math.random() * 3) + 2} rounded-full ${
+                                ['bg-yellow-400', 'bg-red-400', 'bg-green-400', 'bg-blue-400', 'bg-purple-400', 'bg-white'][i % 6]
+                              }`}
+                              style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                              }}
+                              animate={{
+                                y: [-20, -150],
+                                x: [0, Math.random() * 100 - 50],
+                                opacity: [1, 0],
+                                scale: [1, 0.3],
+                                rotate: [0, 360],
+                              }}
+                              transition={{
+                                duration: 3 + Math.random() * 2,
+                                repeat: Infinity,
+                                delay: i * 0.1,
+                              }}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Close Button */}
+                        <motion.button
+                          className="absolute top-4 right-4 w-12 h-12 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg transition-colors"
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.5, delay: 1.5 }}
+                          onClick={() => setShowResultPopup(true)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          ✕
+                        </motion.button>
                       </motion.div>
-                      <motion.h3 
-                        className={`text-4xl font-extrabold mb-3 ${winner === 'big' ? 'bg-gradient-to-r from-blue-400 to-cyan-400' : 'bg-gradient-to-r from-green-400 to-emerald-400'} bg-clip-text text-transparent`}
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
-                      >
-                        {winner === 'big' ? '🎉 BIG WINS! 🎉' : '🎉 SMALL WINS! 🎉'}
-                      </motion.h3>
-                      <p className="text-slate-300 text-lg mb-4">
-                        Congratulations to all {winner === 'big' ? 'Big' : 'Small'} prediction players!
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
+                    </motion.div>
+                  )}
                 
                 {/* Game Legend */}
                 <div className="absolute bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm p-4 flex justify-around items-center">
