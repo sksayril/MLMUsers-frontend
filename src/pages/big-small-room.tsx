@@ -89,7 +89,6 @@ const BigSmallRoom = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [waitingTimer, setWaitingTimer] = useState<number>(30);
-  const [showWinnerAnimation, setShowWinnerAnimation] = useState<boolean>(false);
   const [resultCountdown, setResultCountdown] = useState<number | null>(null);
   const [showJoinAnimation, setShowJoinAnimation] = useState<boolean>(false);
   const [previousPlayerCount, setPreviousPlayerCount] = useState<number>(0);
@@ -214,7 +213,6 @@ const BigSmallRoom = () => {
           // Update winner state if detected
           if (detectedWinner) {
             setWinner(detectedWinner);
-            setShowWinnerAnimation(true);
             
             // Ensure result countdown is set
             if (resultCountdown === null && !resultTimerRef.current) {
@@ -285,7 +283,6 @@ const BigSmallRoom = () => {
         if (prev <= 1) {
           clearInterval(timerInterval);
           setShowResultPopup(true);
-          setShowWinnerAnimation(true);
           setResultCountdown(10);
           
           // Start result display timer
@@ -332,7 +329,6 @@ const BigSmallRoom = () => {
       // If room is completed but winner is not set, try to set it
       if (!winner && roomData.winnerType) {
         setWinner(roomData.winnerType);
-        setShowWinnerAnimation(true);
       }
     }
   }, [roomData, winner]);

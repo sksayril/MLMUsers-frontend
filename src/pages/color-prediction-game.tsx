@@ -231,17 +231,6 @@ const ColorPredictionGame = () => {
     }
   };
 
-  // Get color badge variant based on color name
-  const getColorVariant = (color: string) => {
-    const colorMap: { [key: string]: string } = {
-      'red': 'bg-red-500',
-      'green': 'bg-green-500',
-      'blue': 'bg-blue-500',
-      'yellow': 'bg-yellow-500'
-    };
-    return colorMap[color] || 'bg-gray-500';
-  };
-
   // Format date to a readable format
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -577,7 +566,7 @@ const ColorPredictionGame = () => {
               <div className="w-32 h-32 bg-gradient-to-br from-red-500/20 via-yellow-500/20 via-green-500/20 to-blue-500/20 rounded-full animate-pulse"></div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <svg className="w-16 h-16 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-9 9a1 1 0 100 2h1a1 1 0 100-2H2z" clipRule="evenodd" />
             </svg>
           </div>
             </div>

@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { DollarSign, Target } from 'lucide-react';
 
 // Interface for number game room data
 interface NumberGameRoom {
@@ -647,7 +646,7 @@ const BigSmallGame = () => {
                 </div>
                 
                 {/* Main Casino Title Container */}
-                <div className="relative bg-gradient-to-br from-black/90 via-gray-900/95 to-black/90 backdrop-blur-xl rounded-2xl p-6 sm:p-8 md:p-10 border-4 border-gradient-to-r from-yellow-400/60 via-orange-400/60 via-red-400/60 via-purple-400/60 to-yellow-400/60 shadow-2xl">
+                <div className="relative bg-gradient-to-br from-black/90 via-gray-900/95 to-black/90 backdrop-blur-xl rounded-2xl p-6 sm:p-8 md:p-10 lg:p-12 border-4 border-gradient-to-r from-yellow-400/60 via-orange-400/60 via-red-400/60 via-purple-400/60 to-yellow-400/60 shadow-2xl">
                 <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90 rounded-3xl" 
                style={{
                  backgroundImage: `url('https://plus.unsplash.com/premium_photo-1718992227549-c735b9e453ca?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cG9rZXIlMjBjaGlwc3xlbnwwfHwwfHx8MA%3D%3D')`
@@ -1151,7 +1150,7 @@ const BigSmallGame = () => {
                   disabled={!selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game}
                   className={`relative w-full border-6 font-black text-base sm:text-lg md:text-xl lg:text-2xl py-6 sm:py-8 md:py-10 lg:py-12 rounded-3xl shadow-2xl transition-all duration-500 transform min-h-[70px] sm:min-h-[80px] md:min-h-[90px] overflow-hidden group ${
                     !selectedNumber || !predictionType || !betAmount || parseFloat(betAmount || '0') <= 0 || parseFloat(betAmount || '0') > walletData.game
-                      ? 'bg-gradient-to-b from-gray-700 via-gray-600 to-gray-800 border-gray-500/80 text-gray-400 cursor-not-allowed opacity-60'
+                      ? 'bg-gradient-to-b from-gray-700 via-gray-600 to-gray-800 border-gray-500 text-gray-300 cursor-not-allowed opacity-60'
                       : 'bg-gradient-to-b from-green-600 via-green-500 to-green-700 hover:from-green-700 hover:via-green-600 hover:to-green-800 border-green-400/80 text-white hover:scale-105 hover:-translate-y-2 hover:shadow-green-500/50 animate-pulse'
                   }`}
                 >
