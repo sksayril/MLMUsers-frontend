@@ -215,18 +215,18 @@ const BigSmallRoom = () => {
             setWinner(detectedWinner);
             
             // Ensure result countdown is set
-            if (resultCountdown === null && !resultTimerRef.current) {
-              setResultCountdown(10);
-              resultTimerRef.current = setInterval(() => {
-                setResultCountdown(prev => {
-                  if (prev === null || prev <= 1) {
-                    if (resultTimerRef.current) clearInterval(resultTimerRef.current);
-                    return null;
-                  }
-                  return prev - 1;
-                });
-              }, 1000);
-            }
+            // if (resultCountdown === null && !resultTimerRef.current) {
+            //   setResultCountdown(10);
+            //   resultTimerRef.current = setInterval(() => {
+            //     setResultCountdown(prev => {
+            //       if (prev === null || prev <= 1) {
+            //         if (resultTimerRef.current) clearInterval(resultTimerRef.current);
+            //         return null;
+            //       }
+            //       return prev - 1;
+            //     });
+            //   }, 1000);
+            // }
           }
 
           // Stop polling after a short delay to ensure winner is set
@@ -310,18 +310,35 @@ const BigSmallRoom = () => {
     fetchRoomDetails();
     generateBalls();
 
-    const intervalId = setInterval(() => {
+    // Set up more frequent polling when game is active
+    const gamePollingInterval = setInterval(() => {
       if (pollingRef.current) {
         fetchRoomDetails();
       }
-    }, 5000);
+    }, 2000); // Poll every 2 seconds during active game
+
+    // Set up a separate interval to check for game completion
+    const completionCheckInterval = setInterval(() => {
+      if (roomData && roomData.status === 'completed' && !showResultPopup) {
+        setShowResultPopup(true);
+        if (roomData.winnerNumber && roomData.winnerType) {
+          setWinningBall({
+            number: roomData.winnerNumber,
+            type: roomData.winnerType
+          });
+          setWinner(roomData.winnerType);
+        }
+        pollingRef.current = false;
+      }
+    }, 1000); // Check every second for game completion
 
     return () => {
-      clearInterval(intervalId);
+      clearInterval(gamePollingInterval);
+      clearInterval(completionCheckInterval);
       if (waitingTimerRef.current) clearInterval(waitingTimerRef.current);
       if (resultTimerRef.current) clearInterval(resultTimerRef.current);
     };
-  }, [fetchRoomDetails, generateBalls]);
+  }, [fetchRoomDetails, generateBalls, roomData, showResultPopup]);
 
   // Handle winner detection when room data changes
   useEffect(() => {
@@ -935,22 +952,22 @@ const BigSmallRoom = () => {
                             </motion.div>
 
                             {/* Subtitle */}
-                            <motion.p
+                            <motion.div
                               className="text-yellow-300 text-2xl sm:text-3xl font-bold mb-4"
                               animate={{ opacity: [0.7, 1, 0.7] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             >
                               ⚡ CONGRATULATIONS WINNERS! ⚡
-                            </motion.p>
+                            </motion.div>
 
-                            <motion.p
+                            <motion.div
                               className="text-slate-300 text-xl sm:text-2xl font-semibold"
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               transition={{ duration: 0.8, delay: 1.2 }}
                             >
                               All {(winner || roomData.winnerType) === 'big' ? 'Big' : 'Small'} prediction players are victorious! 🎊
-                            </motion.p>
+                            </motion.div>
                           </motion.div>
 
                           {/* Casino Sound Effects Indicator */}
@@ -1304,6 +1321,14 @@ const ResultsDialog = ({ isOpen, onClose, winningBall, countdown, players }: Res
     height: window.innerHeight,
   });
   const userId = localStorage.getItem('userId');
+  
+  // Force show results if they're available immediately
+  useEffect(() => {
+    if (isOpen && winningBall) {
+      setShowResult(true);
+      setShowCountdown(false);
+    }
+  }, [isOpen, winningBall]);
   const isWinner = players?.some((p: Player) => p.hasWon && p.user.id === userId);
 
   useEffect(() => {
@@ -1441,27 +1466,39 @@ const ResultsDialog = ({ isOpen, onClose, winningBall, countdown, players }: Res
 
                   <DialogDescription className="text-center">
                     <motion.div
-                      className="w-40 h-40 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center mx-auto my-6"
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        boxShadow: [
-                          '0 0 20px rgba(147, 51, 234, 0.5)',
-                          '0 0 40px rgba(147, 51, 234, 0.7)',
-                          '0 0 20px rgba(147, 51, 234, 0.5)'
-                        ]
-                      }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="w-40 h-40 mx-auto mb-6 relative"
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      <span className="text-6xl font-bold text-white">{winningBall?.number}</span>
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-blue-600"
+                        animate={{ 
+                          boxShadow: [
+                            '0 0 20px rgba(147, 51, 234, 0.5)',
+                            '0 0 40px rgba(147, 51, 234, 0.7)',
+                            '0 0 20px rgba(147, 51, 234, 0.5)'
+                          ]
+                        }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <motion.span 
+                          className="text-6xl font-bold text-white z-10"
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        >
+                          {winningBall?.type === 'big' ? 'B' : 'S'}
+                        </motion.span>
+                      </div>
                     </motion.div>
-
                     <motion.div
-                      className="text-xl text-slate-300 mt-4 mb-6"
+                      className="text-xl text-slate-300 mb-6"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
                     >
-                      <p>Winning Number: <span className="font-bold text-yellow-400">{winningBall?.number}</span></p>
-                      <p className="mt-2">
+                      <p className="text-3xl font-bold">
                         {winningBall?.type === 'big' ? (
                           <span className="text-blue-400">BIG (6-10) WINS!</span>
                         ) : (

@@ -287,8 +287,11 @@ const BigSmallGame = () => {
           description: `You have joined room ${roomId} with a ${predictionType} prediction.`
         });
         
-        // Navigate to the room
-        navigate(`/games/big-small/room/${roomId}`);
+        // Navigate to the room and reload for fresh state
+        navigate(`/games/big-small/room/${roomId}`, { replace: true });
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       } else {
         toast({
           variant: 'destructive',
