@@ -83,6 +83,9 @@ const ProfilePage = () => {
     ifscCode: '',
     accountName: ''
   });
+  const [depositStep, setDepositStep] = useState<'image' | 'amount'>('image');
+  const [selectedPaymentImage, setSelectedPaymentImage] = useState<string>('');
+  const [showQRCode, setShowQRCode] = useState(false);
 
   // Fetch wallet data from API
   const fetchWallet = async () => {
@@ -170,6 +173,15 @@ const ProfilePage = () => {
       return;
     }
 
+    if (!selectedPaymentImage) {
+      toast({
+        title: "Payment method required",
+        description: "Please select a payment method first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
@@ -178,11 +190,18 @@ const ProfilePage = () => {
         return;
       }
 
+      // Create filename with format: amount@image.jpeg
+      const filename = `${depositAmount}@${selectedPaymentImage}.jpeg`;
+      const qrCodeImagePath = `/image.jpeg`;
+
       const response = await axios.post(
         'https://api.utpfund.live/api/users/deposit-request',
         {
           amount: Number(depositAmount),
-          notes: "Deposit via UPI"
+          notes: `Deposit via ${selectedPaymentImage}`,
+          paymentImage: selectedPaymentImage,
+          filename: filename,
+          qrCodeImage: qrCodeImagePath
         },
         {
           headers: {
@@ -199,6 +218,8 @@ const ProfilePage = () => {
         });
         setIsDepositDialogOpen(false);
         setDepositAmount('');
+        setSelectedPaymentImage('');
+        setDepositStep('image');
         if (paymentFilter === 'deposit') {
           fetchDepositRequests();
         }
@@ -219,6 +240,18 @@ const ProfilePage = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePaymentMethodSelect = (paymentMethod: string) => {
+    setSelectedPaymentImage(paymentMethod);
+    setShowQRCode(true);
+    setDepositStep('amount');
+  };
+
+  const handleBackToPaymentMethods = () => {
+    setDepositStep('image');
+    setSelectedPaymentImage('');
+    setShowQRCode(false);
   };
 
   const fetchDepositRequests = async () => {
@@ -570,40 +603,149 @@ const ProfilePage = () => {
                         {showBalance ? formatAmount(wallet.normal) : '****'}
                       </div>
                       <div className="flex gap-2">
-                        <Dialog open={isDepositDialogOpen} onOpenChange={setIsDepositDialogOpen}>
+                        <Dialog 
+                          open={isDepositDialogOpen} 
+                          onOpenChange={(open) => {
+                            setIsDepositDialogOpen(open);
+                            if (!open) {
+                              setDepositStep('image');
+                              setSelectedPaymentImage('');
+                              setDepositAmount('');
+                              setShowQRCode(false);
+                            }
+                          }}
+                        >
                           <DialogTrigger asChild>
                             <Button className="flex items-center gap-2">
                               <Plus className="h-4 w-4" />
                               Deposit
                             </Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent className="max-w-md">
                             <DialogHeader>
-                              <DialogTitle>Make a Deposit</DialogTitle>
+                              <DialogTitle>
+                                {depositStep === 'image' ? 'Select Payment Method' : 'Enter Deposit Amount'}
+                              </DialogTitle>
                               <DialogDescription>
-                                Enter the amount you want to deposit to your Main Wallet
+                                {depositStep === 'image' 
+                                  ? 'Choose your preferred payment method to proceed with the deposit'
+                                  : `Enter the amount you want to deposit via ${selectedPaymentImage}`
+                                }
                               </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid gap-2">
-                                <Label htmlFor="amount">Amount (₹)</Label>
-                                <Input
-                                  id="amount"
-                                  type="number"
-                                  placeholder="Enter amount"
-                                  value={depositAmount}
-                                  onChange={(e) => setDepositAmount(e.target.value)}
-                                />
+                            
+                            {depositStep === 'image' ? (
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <Button
+                                    variant="outline"
+                                    className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                    onClick={() => handlePaymentMethodSelect('upi')}
+                                  >
+                                    <QrCode className="h-8 w-8" />
+                                    <span className="text-sm font-medium">UPI Payment</span>
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                    onClick={() => handlePaymentMethodSelect('bank')}
+                                  >
+                                    <Banknote className="h-8 w-8" />
+                                    <span className="text-sm font-medium">Bank Transfer</span>
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                    onClick={() => handlePaymentMethodSelect('paytm')}
+                                  >
+                                    <CreditCard className="h-8 w-8" />
+                                    <span className="text-sm font-medium">Paytm</span>
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                    onClick={() => handlePaymentMethodSelect('phonepe')}
+                                  >
+                                    <CreditCard className="h-8 w-8" />
+                                    <span className="text-sm font-medium">PhonePe</span>
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                            <DialogFooter>
+                                                    ) : (
+                          <div className="grid gap-4 py-4">
+                            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                              <div className="flex items-center gap-2">
+                                {selectedPaymentImage === 'upi' && <QrCode className="h-5 w-5" />}
+                                {selectedPaymentImage === 'bank' && <Banknote className="h-5 w-5" />}
+                                {(selectedPaymentImage === 'paytm' || selectedPaymentImage === 'phonepe') && <CreditCard className="h-5 w-5" />}
+                                <span className="font-medium capitalize">{selectedPaymentImage}</span>
+                              </div>
                               <Button
-                                onClick={handleDeposit}
-                                disabled={isSubmitting}
-                                className="w-full"
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleBackToPaymentMethods}
+                                className="ml-auto"
                               >
-                                {isSubmitting ? 'Processing...' : 'Confirm Deposit'}
+                                Change
                               </Button>
+                            </div>
+                            
+                            {/* QR Code Display */}
+                            {showQRCode && (
+                              <div className="flex flex-col items-center gap-3 p-4 border rounded-lg bg-gray-50">
+                                <div className="text-sm font-medium text-gray-700">
+                                  Scan QR Code to Pay
+                                </div>
+                                <div className="w-48 h-48 bg-white p-2 rounded-lg shadow-sm border">
+                                  <img 
+                                    src={`/image.jpeg`}
+                                    alt={`${selectedPaymentImage} QR Code`}
+                                    className="w-full h-full object-contain"
+                                  />
+                                </div>
+                                <div className="text-xs text-gray-500 text-center">
+                                  Amount will be added after you enter it below
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="grid gap-2">
+                              <Label htmlFor="amount">Amount (₹)</Label>
+                              <Input
+                                id="amount"
+                                type="number"
+                                placeholder="Enter amount"
+                                value={depositAmount}
+                                onChange={(e) => setDepositAmount(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
+                            
+                            <DialogFooter>
+                              {depositStep === 'image' ? (
+                                <Button
+                                  variant="outline"
+                                                                onClick={() => {
+                                setIsDepositDialogOpen(false);
+                                setDepositStep('image');
+                                setSelectedPaymentImage('');
+                                setDepositAmount('');
+                                setShowQRCode(false);
+                              }}
+                                  className="w-full"
+                                >
+                                  Cancel
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={handleDeposit}
+                                  disabled={isSubmitting}
+                                  className="w-full"
+                                >
+                                  {isSubmitting ? 'Processing...' : 'Confirm Deposit'}
+                                </Button>
+                              )}
                             </DialogFooter>
                           </DialogContent>
                         </Dialog>
@@ -746,40 +888,153 @@ const ProfilePage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Dialog open={isDepositDialogOpen} onOpenChange={setIsDepositDialogOpen}>
+                    <Dialog 
+                      open={isDepositDialogOpen} 
+                      onOpenChange={(open) => {
+                        setIsDepositDialogOpen(open);
+                        if (!open) {
+                          setDepositStep('image');
+                          setSelectedPaymentImage('');
+                          setDepositAmount('');
+                          setShowQRCode(false);
+                        }
+                      }}
+                    >
                       <DialogTrigger asChild>
                         <Button className="h-20 flex-col gap-2">
                           <ArrowDownCircle className="h-6 w-6" />
                           <span>Deposit</span>
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="max-w-md">
                         <DialogHeader>
-                          <DialogTitle>Make a Deposit</DialogTitle>
+                          <DialogTitle>
+                            {depositStep === 'image' ? 'Select Payment Method' : 'Enter Deposit Amount'}
+                          </DialogTitle>
                           <DialogDescription>
-                            Enter the amount you want to deposit
+                            {depositStep === 'image' 
+                              ? 'Choose your preferred payment method to proceed with the deposit'
+                              : `Enter the amount you want to deposit via ${selectedPaymentImage}`
+                            }
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="amount">Amount (₹)</Label>
-                            <Input
-                              id="amount"
-                              type="number"
-                              placeholder="Enter amount"
-                              value={depositAmount}
-                              onChange={(e) => setDepositAmount(e.target.value)}
-                            />
+                        
+                        {depositStep === 'image' ? (
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-2 gap-3">
+                              <Button
+                                variant="outline"
+                                className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                onClick={() => handlePaymentMethodSelect('upi')}
+                              >
+                                <QrCode className="h-8 w-8" />
+                                <span className="text-sm font-medium">UPI Payment</span>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                onClick={() => handlePaymentMethodSelect('bank')}
+                              >
+                                <Banknote className="h-8 w-8" />
+                                <span className="text-sm font-medium">Bank Transfer</span>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                onClick={() => handlePaymentMethodSelect('paytm')}
+                              >
+                                <CreditCard className="h-8 w-8" />
+                                <span className="text-sm font-medium">Paytm</span>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="h-24 flex flex-col items-center justify-center gap-2 p-4"
+                                onClick={() => handlePaymentMethodSelect('phonepe')}
+                              >
+                                <CreditCard className="h-8 w-8" />
+                                <span className="text-sm font-medium">PhonePe</span>
+                              </Button>
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="grid gap-4 py-4">
+                            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                              <div className="flex items-center gap-2">
+                                {selectedPaymentImage === 'upi' && <QrCode className="h-5 w-5" />}
+                                {selectedPaymentImage === 'bank' && <Banknote className="h-5 w-5" />}
+                                {(selectedPaymentImage === 'paytm' || selectedPaymentImage === 'phonepe') && <CreditCard className="h-5 w-5" />}
+                                <span className="font-medium capitalize">{selectedPaymentImage}</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleBackToPaymentMethods}
+                                className="ml-auto"
+                              >
+                                Change
+                              </Button>
+                            </div>
+                            
+                            {/* QR Code Display */}
+                            {showQRCode && (
+                              <div className="flex flex-col items-center gap-3 p-4 border rounded-lg bg-gray-50">
+                                <div className="text-sm font-medium text-gray-700">
+                                  Scan QR Code to Pay
+                                </div>
+                                <div className="w-48 h-48 bg-white p-2 rounded-lg shadow-sm border">
+                                  <img 
+                                    src={`/image.jpeg`}
+                                    alt={`${selectedPaymentImage} QR Code`}
+                                    className="w-full h-full object-contain"
+                                    onError={(e) => {
+                                      // Fallback to a placeholder if image doesn't exist
+                                      e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNDggNDhIMTYwVjE2MEg0OFY0OFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzMzMyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Ik02NCA2NEgxNDRWMTQ0SDY0VjY0WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBzdHJva2Utd2lkdGg9IjIiLz4KPHN2ZyB4PSI4MCIgeT0iODAiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9ImJsYWNrIi8+Cjx0ZXh0IHg9IjE2IiB5PSIyMiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4KSP4KSPPC90ZXh0Pgo8L3N2Zz4KPC9zdmc+';
+                                    }}
+                                  />
+                                </div>
+                                <div className="text-xs text-gray-500 text-center">
+                                  Amount will be added after you enter it below
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="grid gap-2">
+                              <Label htmlFor="amount">Amount (₹)</Label>
+                              <Input
+                                id="amount"
+                                type="number"
+                                placeholder="Enter amount"
+                                value={depositAmount}
+                                onChange={(e) => setDepositAmount(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
                         <DialogFooter>
-                          <Button
-                            onClick={handleDeposit}
-                            disabled={isSubmitting}
-                            className="w-full"
-                          >
-                            {isSubmitting ? 'Processing...' : 'Confirm Deposit'}
-                          </Button>
+                          {depositStep === 'image' ? (
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setIsDepositDialogOpen(false);
+                                setDepositStep('image');
+                                setSelectedPaymentImage('');
+                                setDepositAmount('');
+                                setShowQRCode(false);
+                              }}
+                              className="w-full"
+                            >
+                              Cancel
+                            </Button>
+                          ) : (
+                            <Button
+                              onClick={handleDeposit}
+                              disabled={isSubmitting}
+                              className="w-full"
+                            >
+                              {isSubmitting ? 'Processing...' : 'Confirm Deposit'}
+                            </Button>
+                          )}
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
