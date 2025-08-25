@@ -7,7 +7,7 @@ import { setupAxiosInterceptors } from '@/lib/axios-config';
 import Layout from '@/components/layout';
 import AuthPage from '@/pages/auth-page';
 import Dashboard from '@/pages/dashboard';
-import GamePage from '@/pages/game-page';
+// import GamePage from '@/pages/game-page';
 import ProfilePage from '@/pages/profile-page';
 import ColorPredictionGame from '@/pages/color-prediction-game';
 import ColorPredictionRoom from '@/pages/color-prediction-room';
@@ -48,7 +48,7 @@ function AppContent() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/login" element={<AuthPage />} />
-        <Route path="/game" element={<GamePage />} />
+        {/* <Route path="/game" element={<GamePage />} /> */}
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/matrix" element={<MatrixPage />} />
         <Route path="/games/color-prediction" element={<ColorPredictionGame />} />
