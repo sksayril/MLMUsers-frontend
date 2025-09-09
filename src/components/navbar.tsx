@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Home,  User, LogOut, Sun, Moon } from 'lucide-react';
+import { Home,  User, LogOut, Sun, Moon, Users } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
@@ -37,6 +37,7 @@ const Navbar = () => {
     { path: '/', label: 'Home', icon: <Home className="h-5 w-5" /> },
     // { path: '/game', label: 'Game', icon: <GamepadIcon className="h-5 w-5" /> },
     { path: '/matrix', label: 'Matrix', icon: <User className="h-5 w-5" /> },
+    { path: '/team', label: 'Your Team', icon: <Users className="h-5 w-5" /> },
     { path: '/profile', label: 'Profile', icon: <User className="h-5 w-5" /> },
   ];
 
